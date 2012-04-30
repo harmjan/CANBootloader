@@ -28,7 +28,7 @@
 
 \begin{abstract}
 	Our main assignment is to implement tools to develop with on the \protospace floor.
-	The first subproject was to build a CAN Bootloader for the LPC1769 and in this document will we discuss how we approached the problem and what design considerations we took into account.
+	The first subproject was to build a CAN Bootloader for the LPC1769 and in this document will we discuss how we approached this problem and what design considerations we took into account.
 \end{abstract}
 
 \section*{Orientation}
@@ -41,7 +41,7 @@
 		The hardware platform for our project is the LPCXpresso LPC1769.
 		This board is plugged into a custom developed board called the LPCXpresso shield.
 		We worked on the first version of the hardware board,
-		in the new version only minor bugs are fixed and the board is smaller overall.
+		in the new version only minor bugs are fixed and the board is physically smaller overall.
 		
 		We worked with the assembly as seen in \autoref{fig:shield}.
 		An assembly very much alike this one will be implemented in the \protospace floor.
@@ -53,33 +53,33 @@
 		\end{figure}
 	
 	\subsection*{Tools}
-		The LPCXPresso platform comes with an IDE.
-		This IDE is especially good for debugging code for the LPCXpresso,
+		The LPCXpresso platform comes with an IDE.
+		This IDE is especially good for debugging code for the LPCXpresso:
 		you can set breakpoints and step through the code while visually inspecting all the registers.
 		The IDE will be very helpful while developing the CAN bootloader.
 		
-		The LPCXpresso IDE is free to use for programs that are smaller than 128kb.
+		The LPCXpresso IDE is free to use for programs that are smaller than 128kB.
 		The department however wants to develop for the nodes in a high level language like eLua or proto,
 		which means that they want to flash a large image with the virtual machine onto the nodes.
 		To circumvent this restriction they utilize the built-in UART bootloader of the LPC1769.
-		To work with the UART bootloader they bought cables to communicate between the computer and processor over UART.
-		These cables can also be used to send debug information between the computer and the processor.
+		To work with the UART bootloader they use cables to communicate between the computer and processor over UART.
+		These cables can also be used to send debug information between the hostcomputer and the processor.
 		We can keep this in mind while developing for the LPC1769.
 		
 		The department has 2 Saleae Logic's which are logic analyzers.
 		With those logic analyzers we can monitor signals in the hardware which is very useful while debugging.
 	
 	\subsection*{Facilties}
-		The faculty has a soldering room with most common equipment like breadboards and jumper wires.
+		The faculty has an electronics room with most common equipment like soldering irons, breadboards and jumper wires.
 		We can use these as we like for making test setups for the node.
 
 \section*{Design}
-	After the orientation project we focused on the main problem, the CAN bootloader for the LPC1769.
+	After the orientation project we focussed on the main problem: the CAN bootloader for the LPC1769.
 	We tried to do a complete as possible design of the software before starting implementation of the bootloader.
 	
 	\subsection*{Overview LPC1769}
-		The memory of the LPC1769 look like \autoref{fig:flash}.
-		Our program must reside in the Flash memory with the user program.
+		The memory of the LPC1769 looks like \autoref{fig:flash}.
+		Our program must reside in the Flash memory along with the user program.
 		\begin{figure}[htbp]
 			\centering
 			\begin{bytefield}{24}
@@ -96,16 +96,16 @@
 		
 		The LPC1769 has a lot of built-in peripherals,
 		which are hardware functionalities.
-		You can interact with those peripherals via registers.
-		The CAN peripheral consists of 2 registers you need to use to perform all functionality.
-		You can implement all functionality with interrupts or by polling the registers.
-		In case you poll the registers is it called a blocking implementation since no other function can be performed by the processor while you are waiting for something.
+		One can interact with these peripherals via registers.
+		The CAN peripheral consists of 2 registers, which are needed to be used to perform all functionality.
+		Implementing all functionality can be done with interrupts or by polling the registers.
+		In the case of polling the registers, it is called a blocking implementation since no other function can be performed by the processor while waiting for something.
 	
 	\subsection*{Functions and requirements}
-		After analysis of what the bootloader was supposed to do we divided the problem in functions.
+		After analysis of what the bootloader was supposed to do we divided the problem in the following functions:
 		\begin{itemize}
 			\item The bootloader must activate when you want to reprogram the processor via the CAN bus.
-			\item You must be able to choose to only program one node on a CAN bus.
+			\item One must be able to choose to only program one node on a CAN bus.
 			\item The bootloader must download the program (in parts) over the CAN bus to RAM.
 			\item The bootloader must copy the downloaded program into the processors flash.
 			\item The bootloader must start the newly downloaded program after programming.
@@ -114,7 +114,7 @@
 		\begin{itemize}
 			\item The bootloader should use as little ROM memory as possible.
 			\item The bootloader should be as transparent as possible to the programmer that uses the bootloader. With this requirement we mean that the programmer that is using this bootloader shouldn't have to think about it, he should not notice that there is a bootloader in the ROM where his program also is.
-			\item You should be able to flash all nodes in the network in reasonable time.
+			\item Flashing all nodes in the network should be able to be done in reasonable time.
 		\end{itemize}
 		
 		We will discuss per function how we are planning on implementing different aspects of the bootloader an why we want to do it that way.
@@ -129,15 +129,15 @@
 		\end{itemize}
 		
 		\subsubsection*{Compiling in user program}
-			In this concept you make a function that the user program should call before executing it's own program.
+			In this concept you make a function that the user program should call before executing its own program.
 			You still have some slack in this whether you call the bootloader function before or after the startup code of the user application.
 			
 			We identified some problems with this approach.
 			Foremost the bootloader code is somewhere among the user application code,
 			which means that the code the bootloader is replacing is also the place where the bootloader code itself is.
-			You could solve this by linking you bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
+			This could be solveed by linking you bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
 			
-			Another problem is that if you accidentally flash the wrong problem or made a mistake in your program why it does not flash you have bricked the node.
+			Another problem is that if you accidentally flashes the wrong problem or made a mistake in your program why it does not flash you have bricked the node.
 			You will have to go to the physical location of the node and reprogram it via the JTAG or UART bootloader.
 			
 			The bootloader itself is also not transparent to the user.
@@ -176,7 +176,7 @@
 		We generated a few concepts to implement this functionality.
 		
 		\subsubsection*{Startup message}
-			Wait for a certain amount of time during startup and if you receive a bootloader CAN message go into bootloader mode.
+			Wait for a certain amount of time during startup and if the node receives a bootloader CAN message go into bootloader mode.
 		
 		\subsubsection*{Specific CAN message}
 			Overwrite the CAN receive interrupt to map to a function in your bootloader.
@@ -191,10 +191,10 @@
 	
 	\subsection*{Flashing the node}
 		If we have the program in RAM we must download it into the flash memory.
-		In the LPC1769 is there an IAP, in application programming, API to perform such tasks with.
+		In the LPC1769 is an IAP, in application programming, API to perform such tasks with.
 		There is a command to copy $x$ number of bytes from RAM to flash.
 		Afterwards there is a peripheral to generate a signature of the flashed content.
-		With this hash you can figure out if the flashing was successful or not.
+		With this hash the node can figure out if the flashing was successful or not.
 		
 		We must take the following constraints into account:
 		\begin{itemize}
@@ -215,13 +215,13 @@
 	
 	%Getting the node in bootloader mode.
 	
-	%ID's for the nodes.
+	%IDs for the nodes.
 	
-	%Tools to program the node's with, how to facilitate the computer  sensor network interface
+	%Tools to program the nodes with, how to facilitate the computer  sensor network interface
 	
 	\subsection*{Implementation plan}
-		While all these features on themselves aren't extremely difficult is debugging these functionalities can be very tedious.
-		We thought that implementing everything one by one would be easier.
+		While all these features on themselves aren't extremely difficult, debugging these functionalities can be very tedious.
+		We think that implementing everything one by one would be easier.
 		
 		The first step would be to have a compile to bootload in ROM with the bootloader.
 		The bootloader must then copy that program to RAM and then flash it to the flash.
