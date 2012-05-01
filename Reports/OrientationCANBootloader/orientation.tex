@@ -8,6 +8,10 @@
 \usepackage[pdfborder={0 0 0},plainpages=false]{hyperref}
 \usepackage{fullpage}
 \usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgf-umlsd}
+\usepackage{amsmath}
+\usetikzlibrary{arrows,shadows}
 
 % Hack to create memory diagrams inspired by http://www.martin-demling.de/2011/06/memory-maps-in-latex-using-the-bytefield-package/
 \usepackage{bytefield}
@@ -104,20 +108,24 @@
 	\subsection*{Functions and requirements}
 		After analysis of what the bootloader was supposed to do we divided the problem in the following functions:
 		\begin{itemize}
-			\item The bootloader must activate when you want to reprogram the processor via the CAN bus.
-			\item One must be able to choose to only program one node on a CAN bus.
-			\item The bootloader must download the program (in parts) over the CAN bus to RAM.
-			\item The bootloader must copy the downloaded program into the processors flash.
-			\item The bootloader must start the newly downloaded program after programming.
+			\item The bootloader must replace the program on the node with another program.
 		\end{itemize}
 		After functional analysis of the problem we identified requirements to within implement the bootloader.
 		\begin{itemize}
+			\item The bootloader must work on the LPCXpresso LPC1769.
+			\item The bootloader must transfer the program over CAN.
 			\item The bootloader should use as little ROM memory as possible.
-			\item The bootloader should be as transparent as possible to the programmer that uses the bootloader. With this requirement we mean that the programmer that is using this bootloader shouldn't have to think about it, he should not notice that there is a bootloader in the ROM where his program also is.
+			\item The bootloader should be as transparent as possible to the programmer that uses the bootloader.
+				With this requirement we mean that the programmer that is using this bootloader shouldn't have to think about it,
+				he should not notice that there is a bootloader in the ROM where his program also is.
 			\item Flashing all nodes in the network should be able to be done in reasonable time.
+			\item The bootloader must be able to program one specific node in the network.
+			\item The bootloader must be able to detect which nodes in the network are in bootloading mode.
+			\item The bootloader should be able to detect write errors and be able to communicate them to the programmer.
+			\item The node must be able to go into bootloading mode from all states of the user program.
 		\end{itemize}
 		
-		We will discuss per function how we are planning on implementing different aspects of the bootloader an why we want to do it that way.
+		We will discuss how we are planning on implementing different aspects of the bootloader an why we want to do it that way.
 	
 	\subsection*{Location of the bootloader}
 		The bootloader has to be in ROM with the user program, there is no other option.
@@ -135,7 +143,7 @@
 			We identified some problems with this approach.
 			Foremost the bootloader code is somewhere among the user application code,
 			which means that the code the bootloader is replacing is also the place where the bootloader code itself is.
-			This could be solveed by linking you bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
+			This could be solved by linking you bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
 			
 			Another problem is that if you accidentally flashes the wrong problem or made a mistake in your program why it does not flash you have bricked the node.
 			You will have to go to the physical location of the node and reprogram it via the JTAG or UART bootloader.
@@ -159,35 +167,76 @@
 			The program might try to use the memory where the bootloader is programmed in.
 			
 			If the bootloader runs during the user application the bootloader does not know the settings of the clock and other peripherals.
-			The bootloader must also not use RAM that the application uses. 
+			
+			A requirement is that the program must be able to go into bootloader mode at all times without pulling the cord on the network.
+			The user application must restart the node in case the nodes needs to be reprogrammed,
+			so the implementation is not completely transparent to the end-user.
 			
 			Since the user application and bootloader are now completely separate you can flash every program you want in the flash.
 			
 		\subsubsection*{Top of flash interrupts}
 			Same as previous but now instead of polling using interrupts.
-			To achieve this we must also overwrite the CAN receive interrupt during downloading
-	
-	\subsection*{Activate the bootloader}
-		You need a way to get the processor in bootloader mode while not giving the normal program more constraints.
-		The built-in UART bootloader of the LPC1769 activates when during boot a certain pin is pulled low.
-		We need to find a way to get nodes in the network to go into our bootloader code when we want to,
-		and to keep it in the application code when we just want the application to run.
-		
-		We generated a few concepts to implement this functionality.
-		
-		\subsubsection*{Startup message}
-			Wait for a certain amount of time during startup and if the node receives a bootloader CAN message go into bootloader mode.
-		
-		\subsubsection*{Specific CAN message}
-			Overwrite the CAN receive interrupt to map to a function in your bootloader.
-			Determine if it is a start bootloader message,
-			if it is start the bootloader and if it isn't call the user interrupt vector.
+			To achieve this we must also overwrite the CAN receive interrupt during downloading.
 			
-			This implies that during bootloading you overwrite the user CAN receive interrupt and replace it with your bootloader interrupt.
+			Now you can intercept all CAN messages so the bootloader can restart the node when the reprogram message comes.
+			The bootloader is now completely transparent to the programmer.
+		
+		\subsubsection*{Chosen concept}
+			Top of flash implementation,
+			start with polling implementation and try interrupt implementation if time allows it.
+			We'll decide during implementation.
 	
-	\subsection*{Downloading to RAM}
+	\subsection*{CAN Protocol}
 		After that the node is in bootloading mode must we be able to get the program to the node over the CAN bus.
 		
+		% Hash from 4 bytes to 11 bits? Unique during compiling? Howto prevent collision with debugging protocol?
+		
+		Own protocol vs. LPC11C24 protocol, LPC11C24 protocol does not implement what we want, no multiple nodes at the same time.
+		\begin{figure}[h]
+			\centering
+			\begin{sequencediagram}
+				\newthread{a}{Programmer}
+				\newinst{b}{Node}
+				
+				% Getting all the nodes in bootloading mode
+				\begin{sdloop}{5 seconds}
+					\begin{call}{a}{0x100}{b}{}
+					\end{call}
+				\end{sdloop}
+				
+				% Get all the nodes that are on the bus
+				\begin{call}{a}{0x101}{b}{}
+				\end{call}
+				
+				% Download the data
+				\begin{sdloop}{Foreach sector}
+					\begin{call}{a}{0x102}{b}{} % Send data
+					\end{call}
+				\end{sdloop}
+				\begin{call}{a}{0x103}{b}{} % CRC
+				\end{call}
+				\begin{call}{a}{0x104}{b}{} % IAP command to copy to flash
+				\end{call}
+				
+				% Start all other nodes
+				
+			\end{sequencediagram}
+			\caption{The CAN protocol}
+		\end{figure}
+		
+		\begin{table*}[ht]
+			\caption{CAN ID's and their meaning while bootloading}
+			
+			\centering
+			\begin{tabular}{|c|c|c|c|}
+				\hline
+				\textbf{ID} & \textbf{Length} & \textbf{Data} & \textbf{Meaning} \\ \hline
+				0x100 & 0 & - & Go into bootloading mode \\ \hline
+				0x101 & 0 & - & All nodes in the network register \\ \hline
+				0x102 & 4 & Node ID & Node with Node ID listen to data \\ \hline
+				0x103 & 8 & Flash data & Data to be flashed \\ \hline
+			\end{tabular}
+		\end{table*}
 	
 	\subsection*{Flashing the node}
 		If we have the program in RAM we must download it into the flash memory.
@@ -200,12 +249,8 @@
 		\begin{itemize}
 			\item Interrupts must be disabled or interrupt handlers must reside in RAM during flash programming
 			\item You must prepare the sectors you are going to write to with an IAP command before trying to write to it.
+			\item You can flash blocks of 256, 512, 1024 or 4096 bytes.
 		\end{itemize}
-	
-	\subsection*{Start the program}
-		Set the stack pointer and reset the instruction pointer.
-		
-		Use IAP command GO.
 	
 	%Linked in application or boot application residing in the top of memory.
 	
