@@ -106,47 +106,50 @@
 		In the case of polling the registers, it is called a blocking implementation since no other function can be performed by the processor while waiting for something.
 	
 	\subsection*{Functions and requirements}
-		After analysis of what the bootloader was supposed to do we divided the problem in the following functions:
-		\begin{itemize}
-			\item The bootloader must replace the program on the node with another program.
-		\end{itemize}
+		After analysis of what the bootloader was supposed to do we defined the following main function.
+		\begin{quote}
+			A bootloader can update the user program in flash memory.
+		\end{quote}
+		We use the bootloader as the program that can flash the node and the user program as the program that is flashed by the bootloader.
 		After functional analysis of the problem we identified requirements to within implement the bootloader.
 		\begin{itemize}
 			\item The bootloader must work on the LPCXpresso LPC1769.
-			\item The bootloader must transfer the program over CAN.
+			\item The bootloader must be able to flash the node while the programmer can only communicate with the node over CAN.
+			\item The bootloader must be able to program one specific node in the network.
+			\item The bootloader must be able to detect which nodes in the network are in bootloading mode.
+			\item The node must be able to go into bootloading mode from all states of the user program.
+			\item The bootloader should be able to detect all nodes in the network with the bootloader software.
+			\item The bootloader should be able to detect write errors and be able to communicate them to the programmer.
 			\item The bootloader should use as little ROM memory as possible.
 			\item The bootloader should be as transparent as possible to the programmer that uses the bootloader.
 				With this requirement we mean that the programmer that is using this bootloader shouldn't have to think about it,
 				he should not notice that there is a bootloader in the ROM where his program also is.
-			\item Flashing all nodes in the network should be able to be done in reasonable time.
-			\item The bootloader must be able to program one specific node in the network.
-			\item The bootloader must be able to detect which nodes in the network are in bootloading mode.
-			\item The bootloader should be able to detect write errors and be able to communicate them to the programmer.
-			\item The node must be able to go into bootloading mode from all states of the user program.
+			\item Flashing all 200 nodes in the network should be able to be done in less than 5 minutes.
 		\end{itemize}
 		
-		We will discuss how we are planning on implementing different aspects of the bootloader an why we want to do it that way.
+		We will discuss how we are planning on implementing different aspects of the bootloader and why we want to do it that way.
 	
 	\subsection*{Location of the bootloader}
 		The bootloader has to be in ROM with the user program, there is no other option.
 		For the place of the bootloader we identified two concepts:
 		\begin{itemize}
-			\item Compiling the bootloader with the user program.
-			\item Putting the bootloader at the top of the flash memory and implementing all the peripheral functions polling.
-			\item Putting the bootloader at the top of the flash memory and implementing the peripheral functions with interrupts.
+			\item Compiling the bootloader with the user program;
+			\item Placing the bootloader at the top of the flash memory and implementing all the peripheral functions polling;
+			\item Placing the bootloader at the top of the flash memory and implementing the peripheral functions with interrupts;
+			\item Placing the bootloader at the bottom of the flash memory.
 		\end{itemize}
 		
 		\subsubsection*{Compiling in user program}
 			In this concept you make a function that the user program should call before executing its own program.
-			You still have some slack in this whether you call the bootloader function before or after the startup code of the user application.
+			The bootloader and the user program are than in the same image.
 			
 			We identified some problems with this approach.
 			Foremost the bootloader code is somewhere among the user application code,
 			which means that the code the bootloader is replacing is also the place where the bootloader code itself is.
-			This could be solved by linking you bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
+			This could be solved by linking the bootloader code like it is in RAM and then have a piece of code that copies the bootloader to RAM and starts it.
 			
-			Another problem is that if you accidentally flashes the wrong problem or made a mistake in your program why it does not flash you have bricked the node.
-			You will have to go to the physical location of the node and reprogram it via the JTAG or UART bootloader.
+			Another problem is that if someone accidentally flashes the wrong image or made a mistake in the program the node becomes bricked.
+			The programmer will have to go to the physical location of the node and reprogram it via the JTAG or UART bootloader.
 			
 			The bootloader itself is also not transparent to the user.
 			The user application has to change to facilitate the bootloader.
@@ -154,37 +157,63 @@
 		
 		\subsubsection*{Top of flash polling}
 			In this concept we put the bootloader code at the top of the flash.
-			We overwrite the start pointer during flashing to point to the bootloader at the top while saving the original start and stack pointer value.
+			We overwrite the start pointer during bootloading by the bootloader to point to the bootloader at the top while saving the original start and stack pointer value.
 			So the bootloader is called at startup,
-			it can then set up everything needed for the bootloading and then start the user application program.
-			Every interaction with the peripherals are done via polling.
-			So the interrupts are disabled when the bootloader start so that user application interrupts do not fire.
+			it can then set up everything needed for the bootloading and then start the user program.
+			Every interaction with the peripherals is done via polling the registers.
+			So the interrupts are disabled when the bootloader starts so that user application interrupts do not execute.
 			
 			We have also identified some problems with this approach.
-			You have to use the CAN bootloader to load your application into flash,
-			programming via the JTAG interface or the UART bootloader will overwrite the CAN bootloader.
+			The CAN bootloader has to be used to load the user program into flash,
+			programming via the JTAG interface or the UART bootloader will overwrite the bootloader if the bootloader is not in the image.
 			
-			The program might try to use the memory where the bootloader is programmed in.
+			The user program might try to use the memory where the bootloader is placed.
+			Some user programs use the flash memory for storing variables needed between reboots.
+			Using the top of the flash for that purpose is common practice.
 			
-			If the bootloader runs during the user application the bootloader does not know the settings of the clock and other peripherals.
+			If the bootloader runs during the user program the bootloader does not know the settings of the clock and other peripherals.
+			This makes the bootloader very unreliable since the speed of the CAN peripherals is related to the speed of the main processor clock.
+			The user program can also disable the CAN peripheral completely and interfere with the bootloader.
 			
-			A requirement is that the program must be able to go into bootloader mode at all times without pulling the cord on the network.
+			A requirement is that the program must be able to go into bootloader mode at all times without powering down the network to force all processors to restart.
 			The user application must restart the node in case the nodes needs to be reprogrammed,
-			so the implementation is not completely transparent to the end-user.
+			so the implementation is not completely transparent to the programmer.
 			
-			Since the user application and bootloader are now completely separate you can flash every program you want in the flash.
+			Keeping time on an ARM processor is done via the systick interrupt but in this concept interrupts are disabled.
+			Since the processor has a known clock the time each instruction takes can be deduced.
+			Waiting for a certain amount of time can be approximated by looping a constant amount.
+			The bootloader does not have any hard real-time constraints.
 			
+			Since the user program and bootloader are now completely separate every program that does not use the top of the flash can be flashed onto the node without modification.
+			Only restarting the node via CAN is then not implemented.
+		
 		\subsubsection*{Top of flash interrupts}
-			Same as previous but now instead of polling using interrupts.
-			To achieve this we must also overwrite the CAN receive interrupt during downloading.
+			Same as previous concept but now instead of polling the bootloader is implemented with interrupts.
+			To achieve this the bootloader must overwrite all interrupts during downloading and have them points to the bootloader code,
+			the same thing that has to happen to the start pointer and the stack pointer.
 			
-			Now you can intercept all CAN messages so the bootloader can restart the node when the reprogram message comes.
+			Now the bootloader can intercept all CAN messages so the bootloader can restart the node when the re-program message comes,
+			even during the user program.
 			The bootloader is now completely transparent to the programmer.
+			The user program can still interfere with the bootloader by changing the CAN settings or the processor clock.
+			Most user programs change the clock to use an external hardware crystal.
+			This would change the speed of the CAN peripheral disrupting communication with the programmer.
+		
+		\subsection*{Bottom of the flash}
+			The previous concepts both placed the bootloader at the top of the flash.
+			The bootloader can also be placed at the bottom,
+			the linker script of the user program then has to be changed to not use that piece of flash memory.
+			
+			The difference between the top and bottom flash concepts is essentially that the bottom of the flash concept interferes with most user programs while at the top of the flash the bootloader only interferes with some user programs.
 		
 		\subsubsection*{Chosen concept}
-			Top of flash implementation,
-			start with polling implementation and try interrupt implementation if time allows it.
-			We'll decide during implementation.
+			The bootloader will be implemented at the top of the flash.
+			This is because this interferes with less user programs than a implementation at the bottom of the flash.
+			
+			The bootloader will be implemented using polling for all peripherals and timing.
+			Overwriting interrupts is hard to implement and no real gain is achieved.
+			The bootloader does not become more transparent to the programmer since the programmer still has to change settings for the CAN such as the peripheral clock divider.
+			
 	
 	\subsection*{CAN Protocol}
 		After that the node is in bootloading mode must we be able to get the program to the node over the CAN bus.
@@ -231,10 +260,10 @@
 			\begin{tabular}{|c|c|c|c|}
 				\hline
 				\textbf{ID} & \textbf{Length} & \textbf{Data} & \textbf{Meaning} \\ \hline
-				0x100 & 0 & - & Go into bootloading mode \\ \hline
-				0x101 & 0 & - & All nodes in the network register \\ \hline
-				0x102 & 4 & Node ID & Node with Node ID listen to data \\ \hline
-				0x103 & 8 & Flash data & Data to be flashed \\ \hline
+				0x100       & 0               & -             & Go into bootloading mode \\ \hline
+				0x101       & 0               & -             & All nodes in the network register \\ \hline
+				0x102       & 4               & Node ID       & Node with Node ID listen to data \\ \hline
+				0x103       & 8               & Flash data    & Data to be flashed \\ \hline
 			\end{tabular}
 		\end{table*}
 	
@@ -250,11 +279,8 @@
 			\item Interrupts must be disabled or interrupt handlers must reside in RAM during flash programming
 			\item You must prepare the sectors you are going to write to with an IAP command before trying to write to it.
 			\item You can flash blocks of 256, 512, 1024 or 4096 bytes.
+			\item IAP commands use the top 32 bytes of RAM.
 		\end{itemize}
-	
-	%Linked in application or boot application residing in the top of memory.
-	
-	%Overriding all interrupts or program bootloader without using interrupts.
 	
 	%Should we use the CMSIS library functions or write our own drivers.
 	
@@ -267,6 +293,9 @@
 	\subsection*{Implementation plan}
 		While all these features on themselves aren't extremely difficult, debugging these functionalities can be very tedious.
 		We think that implementing everything one by one would be easier.
+		\begin{enumerate}
+			\item Application at top of flash.
+		\end{enumerate}
 		
 		The first step would be to have a compile to bootload in ROM with the bootloader.
 		The bootloader must then copy that program to RAM and then flash it to the flash.
