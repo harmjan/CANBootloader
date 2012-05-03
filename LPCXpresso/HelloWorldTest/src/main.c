@@ -34,6 +34,9 @@ PINSEL_CFG_Type Port0Pin4;
 PINSEL_CFG_Type Port0Pin5;
 
 int main(void) {
+
+	goto serialTest;
+
 	SystemCoreClockUpdate();
 
 	debug_frmwrk_init();
@@ -70,6 +73,9 @@ int main(void) {
 		if( CAN_SendMsg(LPC_CAN2,&msg) == ERROR )
 			_DBG("\tSending error\n");
 	}
+
+serialTest:
+	testserialNumber();
 
 	return 0 ;
 }
