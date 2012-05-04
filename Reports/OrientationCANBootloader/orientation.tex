@@ -270,6 +270,7 @@
 		This bootloader must also be able to efficiently support flashing multiple devices,
 		which most current bootloader protocols don't support.
 		We will refer in the next section to the programmer as the node that is flashing other nodes in the network.
+		The programmer is also a LPCXpresso LPC1769 with shield.
 			
 		\subsubsection*{Initialization}
 			In the initialization phase of the protocol the programmer figures out which nodes are on the bus.
@@ -329,11 +330,23 @@
 			If a node does not respond to the 0x105 message or if a node failed the CRC the programmer sends the entire section again upto 3 times.
 			After 3 times the flashing fails.
 			
-			After flashing it, the node sends 0x107 message to the programmer to notify whether or not the flashing was succesfull.
-	
+			The bootloader must take the following constraints into account:
+			\begin{itemize}
+				\item Interrupts must be disabled or interrupt handlers must reside in RAM during flash programming
+				\item You must prepare the sectors you are going to write to with an IAP command before trying to write to it.
+				\item You can flash blocks of 256, 512, 1024 or 4096 bytes.
+				\item IAP commands use the top 32 bytes of RAM.
+			\end{itemize}
+			
+			If the programmer wants to write to the first sector the bootloader must change the start pointer to point to the start of the bootloader.
+			The bootloader must however save the start of the user program,
+			it saves it in the Eeprom on the LPCXpresso together with the stack pointer.
 
-			\subsubsection*{Executing}
+		\subsubsection*{Executing}
 			Now some nodes are flashed, they all have to start up the new program.
+			The programmer sends the message 0x107 to reset all the nodes.
+			The nodes just restart and startup the bootloader.
+			If the bootloader does not receive the message 0x100 the user program is started.
 	
 			\begin{figure}[t]
 				\centering
@@ -358,63 +371,39 @@
 				\caption{Sending a sector 4kB over the CAN bus}
 			\end{figure}
 		
-			\begin{table*}[t]
+			\begin{table*}[bthp]
 				\caption{CAN IDs and their meaning while bootloading}
 			
 				\centering
 				\begin{tabular}{|c|c|c|l|}
 					\hline
 					\textbf{ID} & \textbf{Length} & \textbf{Data} & \textbf{Meaning} \\ \hline
-					0x100       & 0               & -                       & Go into bootloading mode, reset into bootloader \\ \hline
-					0x101       & 0               & -                       & All nodes in the network register \\ \hline
-					0x102       & 4               & Node ID                 & Node with Node ID listen to data \\ \hline
-					0x103       & ?               & Address                 & Address where the coming data needs to be flashed \\ \hline
-					0x104       & 8               & Flash data              & Data to be flashed \\ \hline
-					0x105       & 4               & CRC                     & CRC of the data to be flashed \\ \hline
-					0x106       & 5               & Node ID + CRC correct   & The Node ID and if the CRC was correct on that node \\ \hline
-					0x107       & 5               & Node ID + flash success & The node has been succesfully flashed \\ \hline
+					0x100       & 0               & -                           & Go into bootloading mode, reset into bootloader \\ \hline
+					0x101       & 0               & -                           & All nodes in the network register \\ \hline
+					0x102       & 4               & Node ID                     & Node with Node ID listen to data \\ \hline
+					0x103       & 2               & Address                     & Address of the coming 4kB block, 256 bit addressed \\ \hline
+					0x104       & 8               & Flash data                  & Data to be flashed \\ \hline
+					0x105       & 4               & CRC                         & CRC of the data to be flashed \\ \hline
+					0x106       & 5               & Node ID + CRC/flash correct & The Node ID and if the CRC/flash was correct \\ \hline
+					0x107       & 0               & -                           & Reset the node \\ \hline
 				\end{tabular}
 			\end{table*}
 	
-	\subsection*{Flashing the node}
-		If we have the program in RAM we must download it into the flash memory.
-		In the LPC1769 is an IAP, in application programming, API to perform such tasks with.
-		There is a command to copy $x$ number of bytes from RAM to flash.
-		Afterwards there is a peripheral to generate a signature of the flashed content.
-		With this hash the node can figure out if the flashing was successful or not.
-		
-		We must take the following constraints into account:
-		\begin{itemize}
-			\item Interrupts must be disabled or interrupt handlers must reside in RAM during flash programming
-			\item You must prepare the sectors you are going to write to with an IAP command before trying to write to it.
-			\item You can flash blocks of 256, 512, 1024 or 4096 bytes.
-			\item IAP commands use the top 32 bytes of RAM.
-		\end{itemize}
-	
-	%Should we use the CMSIS library functions or write our own drivers.
-	
-	%Getting the node in bootloader mode.
-	
-	%IDs for the nodes.
-	
-	%Tools to program the nodes with, how to facilitate the computer  sensor network interface
-	
 	\subsection*{Implementation plan}
-		While all these features on themselves aren't extremely difficult, debugging these functionalities can be very tedious.
-		We think that implementing everything one by one would be easier.
-		\begin{enumerate}
+		We want to stepwise implement all functionality.
+		For all the functions we want to make a minimal working example showing that it is possible with the least interfering factors.
+		We also want to work in parallel on features.
+		Right now we are thinking of producing the following small applications to in the end get a bootloader:
+		\begin{itemize}
 			\item Application at top of flash.
-		\end{enumerate}
+			\item Application at top of flash that calls back to application at the bottom of flash.
+			\item Application that reads and writes to eeprom.
+			\item Application that flashes an unused sector and reads it back.
+			\item 2 node CAN network that sends data with CRC.
+			\item 2 node CAN network that implement communication protocol.
+			\item 2+ node CAN network that implement communication protocol.
+			\item Bootloader!
+		\end{itemize}
 		
-		The first step would be to have a compile to bootload in ROM with the bootloader.
-		The bootloader must then copy that program to RAM and then flash it to the flash.
-		
-		After completing the flashing functionality we focus on downloading over the CAN protocol.
-		If the node starts up it should already be in bootloader mode.
-		What it should do is download the program and flash it.
-		
-		After getting that functionality working we should get the part that selects if the node should go into bootloading mode working.
-		
-		If we accomplish all this we should have a functioning CAN bootloader.
-
+		This all should finally produce a working bootloader. 
 \end{document}
