@@ -55,6 +55,55 @@
 			\caption{The LPCXpresso LPC1769 and the LPCXpresso shield V1 assembly}
 			\label{fig:shield}
 		\end{figure}
+		
+		The boards are connected with their neighbours via UART and all boards are also connected to each other via a single CAN bus,
+		as seen in \autoref{fig:network}.
+		\begin{figure}[htbp]
+			\centering
+			\tikzstyle{square}=[rectangle,thick,minimum size=0.5cm,draw=black]
+			\begin{tikzpicture}[auto, outer sep=3pt, node distance=2cm,>=latex']
+				\node [square] (1) {Node 1};
+				\node [square] (2) [right of=1] {Node 2};
+				\node [square] (3) [right of=2]{Node 3};
+				\node [square] (4) [below of=1]{Node 4};
+				\node [square] (5) [right of=4]{Node 5};
+				\node [square] (6) [right of=5]{Node 6};
+				\node [square] (7) [below of=4]{Node 7};
+				\node [square] (8) [right of=7]{Node 8};
+				\node [square] (9) [right of=8]{Node 9};
+			
+				\draw [<->,thick] (1) --  node {} (2) ;
+				\draw [<->,thick] (2) --  node {} (3) ;
+				\draw [<->,thick] (1) --  node {} (4) ;
+				\draw [<->,thick] (2) --  node {} (5) ;
+				\draw [<->,thick] (3) --  node {} (6) ;
+				\draw [<->,thick] (4) --  node {} (5) ;
+				\draw [<->,thick] (5) --  node {} (6) ;
+				\draw [<->,thick] (4) --  node {} (7) ;
+				\draw [<->,thick] (5) --  node {} (8) ;
+				\draw [<->,thick] (6) --  node {} (9) ;
+				\draw [<->,thick] (7) --  node {} (8) ;
+				\draw [<->,thick] (8) --  node {} (9) ;
+			
+				\path[red,thick] (7) edge [bend left] node {} (4)
+				      (4) edge [bend left] node {} (1)
+				      (1) edge [bend left] node {} (2)
+				      (2) edge [bend right] node {} (5)
+				      (5) edge [bend right] node {} (8)
+				      (8) edge [bend right] node {} (9)
+				      (9) edge [bend left] node {} (6)
+				      (6) edge [bend left] node {} (3);
+			\end{tikzpicture}
+			\caption{A sensor node network with a CAN bus}
+			\label{fig:network}
+		\end{figure}
+		
+		CAN is a communication protocol implementing the lowest two layers in the OSI network layer model.
+		CAN works by setting messages with an 11 bit ID and up to 8 bytes of data on the bus.
+		Every node on the bus receives every message.
+		
+		The department wants to be able to load applications onto the nodes in the \protospace floor without having to lift any tiles.
+		That is why they want a CAN bootloader.
 	
 	\subsection*{Tools}
 		The LPCXpresso platform comes with an IDE.
@@ -216,56 +265,111 @@
 			
 	
 	\subsection*{CAN Protocol}
-		After that the node is in bootloading mode must we be able to get the program to the node over the CAN bus.
-		
-		% Hash from 4 bytes to 11 bits? Unique during compiling? Howto prevent collision with debugging protocol?
-		
-		Own protocol vs. LPC11C24 protocol, LPC11C24 protocol does not implement what we want, no multiple nodes at the same time.
-		\begin{figure}[h]
-			\centering
-			\begin{sequencediagram}
-				\newthread{a}{Programmer}
-				\newinst{b}{Node}
-				
-				% Getting all the nodes in bootloading mode
-				\begin{sdloop}{5 seconds}
-					\begin{call}{a}{0x100}{b}{}
-					\end{call}
-				\end{sdloop}
-				
-				% Get all the nodes that are on the bus
-				\begin{call}{a}{0x101}{b}{}
-				\end{call}
-				
-				% Download the data
-				\begin{sdloop}{Foreach sector}
-					\begin{call}{a}{0x102}{b}{} % Send data
-					\end{call}
-				\end{sdloop}
-				\begin{call}{a}{0x103}{b}{} % CRC
-				\end{call}
-				\begin{call}{a}{0x104}{b}{} % IAP command to copy to flash
-				\end{call}
-				
-				% Start all other nodes
-				
-			\end{sequencediagram}
-			\caption{The CAN protocol}
-		\end{figure}
-		
-		\begin{table*}[ht]
-			\caption{CAN ID's and their meaning while bootloading}
+		We must design a protocol for the nodes to talk over the CAN bus.
+		At the time of writing is there no standard protocol for CAN bootloaders.
+		This bootloader must also be able to efficiently support flashing multiple devices,
+		which most current bootloader protocols don't support.
+		We will refer in the next section to the programmer as the node that is flashing other nodes in the network.
 			
-			\centering
-			\begin{tabular}{|c|c|c|c|}
-				\hline
-				\textbf{ID} & \textbf{Length} & \textbf{Data} & \textbf{Meaning} \\ \hline
-				0x100       & 0               & -             & Go into bootloading mode \\ \hline
-				0x101       & 0               & -             & All nodes in the network register \\ \hline
-				0x102       & 4               & Node ID       & Node with Node ID listen to data \\ \hline
-				0x103       & 8               & Flash data    & Data to be flashed \\ \hline
-			\end{tabular}
-		\end{table*}
+		\subsubsection*{Initialization}
+			In the initialization phase of the protocol the programmer figures out which nodes are on the bus.
+			The programmer first gets all the nodes on the bus into bootloading mode.
+			All nodes at reset wait for about 1 second on the message 0x100.
+			If a node receives that message in that time they will go into bootloading mode and wait for further commands.
+			The user program should contain code that if the node receives the 0x100 message that the node should restart.
+			The programmer at the start of the bootloading sends the 0x100 message for an amount of time with as goal to get every node in bootloading mode.
+			
+			Now that every node is in bootloading mode should the programmer know which nodes are on the CAN bus.
+			The programmer sends a 0x101 message on the bus as a request for every node to register itself.
+			All nodes then respond with a 0x102 message with their ID as data.
+			A lot of nodes will experience bit errors in this phase.
+			The nodes should just continue until they have sent their ID.
+			The ID of the node is based on the unique processor ID.
+			
+			After a certain amount of time the initialization period is over and the programming of the nodes can begin.
+		
+			\begin{figure}[t]
+				\centering
+				\begin{sequencediagram}
+					\newthread{a}{Programmer}
+					\newinst{b}{Node}
+				
+					% Getting all the nodes in bootloading mode
+					\begin{sdloop}{5 seconds}
+						\begin{call}{a}{0x100}{b}{}
+						\end{call}
+					\end{sdloop}
+				
+					% Get all the nodes that are on the bus
+					\begin{call}{a}{0x101}{b}{}
+						\begin{sdloop}{All nodes}
+							\begin{call}{b}{0x102 - ID}{a}{}
+							\end{call}
+						\end{sdloop}
+					\end{call}
+				\end{sequencediagram}
+				\caption{The initialization period}
+			\end{figure}
+		
+		\subsubsection*{Downloading}
+			The nodes now need to get flashed with new firmware.
+			This is done by first selecting all the nodes that we want to flash with new firmware.
+			The programmer does this by sending message 0x102 with the node ID that needs to be flashed.
+			So if a node sees a 0x102 message with in it its ID it starts listening to the data from the programmer,
+			if a node was not selected for flashing it disregards the data from the programmer.
+			
+			The programmer sends the new program in blocks of 4kB,
+			the biggest chunk of data a node can copy to flash in 1 IAP command.
+			The node must keep track of what sectors need to be cleared and what sectors don't need to be cleared.
+			The node also automatically clears the flash sector.
+			The 4kB are sent per 8 bytes in message 0x103.
+			After the 4kB the programmer sends a 4 byte CRC in message 0x104.
+			With that CRC can the nodes determine if the data they received is correct.
+			Every node that is listening to the data needs to respond to the 0x105 message with a 0x106 confirm that the CRC passed or that the CRC failed.
+			If a node does not respond to the 0x105 message or if a node failed the CRC the programmer sends the entire section again upto 3 times.
+			After 3 times the flashing fails.
+			
+			
+		
+			\begin{figure}[t]
+				\centering
+				\begin{sequencediagram}
+					\newthread{a}{Programmer}
+					\newinst{b}{Node}
+					
+					\begin{call}{a}{0x103 - address}{b}{} % Address
+					\end{call}
+					\begin{sdloop}{512 times}
+						\begin{call}{a}{0x104 - data}{b}{} % Send data
+						\end{call}
+					\end{sdloop}
+					\begin{call}{a}{0x105 - CRC}{b}{} % CRC
+						\begin{sdloop}{Per node}
+							\begin{call}{b}{0x106 - ID - success/fail}{a}{} % CRC ok
+							\end{call}
+						\end{sdloop}
+					\end{call}
+				
+				\end{sequencediagram}
+				\caption{Sending a sector 4kB over the CAN bus}
+			\end{figure}
+		
+			\begin{table*}[t]
+				\caption{CAN ID's and their meaning while bootloading}
+			
+				\centering
+				\begin{tabular}{|c|c|c|l|}
+					\hline
+					\textbf{ID} & \textbf{Length} & \textbf{Data} & \textbf{Meaning} \\ \hline
+					0x100       & 0               & -                     & Go into bootloading mode, reset into bootloader \\ \hline
+					0x101       & 0               & -                     & All nodes in the network register \\ \hline
+					0x102       & 4               & Node ID               & Node with Node ID listen to data \\ \hline
+					0x103       & ?               & Address               & Address where the coming data needs to be flashed \\ \hline
+					0x104       & 8               & Flash data            & Data to be flashed \\ \hline
+					0x105       & 4               & CRC                   & CRC of the data to be flashed \\ \hline
+					0x106       & 5               & Node ID + CRC correct & The Node ID and if the CRC was correct on that node \\ \hline
+				\end{tabular}
+			\end{table*}
 	
 	\subsection*{Flashing the node}
 		If we have the program in RAM we must download it into the flash memory.
