@@ -22,10 +22,15 @@ typedef struct {
 	uint16_t id;
 	uint8_t length;
 	uint8_t data[8];
-} Message;
+} CanMessage;
+
+typedef enum {
+	NO_MESSAGE_RECEIVED = 0,
+	MESSAGE_RECEIVED    = 1
+} CanReceiveStatus;
 
 void initCan( void );
-void receive( Message *msg );
-void send( Message *msg );
+CanReceiveStatus canReceive( CanMessage *msg );
+void canSend( CanMessage *msg );
 
 #endif
