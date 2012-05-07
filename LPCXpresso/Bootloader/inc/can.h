@@ -18,7 +18,7 @@
 #ifndef CAN_H__
 #define CAN_H__
 
-struct {
+typedef struct {
 	uint16_t id;
 	uint8_t length;
 	uint8_t data[8];
