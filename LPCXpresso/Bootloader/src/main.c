@@ -1,37 +1,41 @@
-/*
-===============================================================================
- Name        : main.c
- Author      : 
- Version     :
- Copyright   : Copyright (C) 
- Description : main definition
-===============================================================================
-*/
+/**
+ *     ______       _       ____  _____   ______                    _   __                       __
+ *   .' ___  |     / \     |_   \|_   _| |_   _ \                  / |_[  |                     |  ]
+ *  / .'   \_|    / _ \      |   \ | |     | |_) |   .--.    .--. `| |-'| |  .--.   ,--.    .--.| | .---.  _ .--.
+ *  | |          / ___ \     | |\ \| |     |  __'. / .'`\ \/ .'`\ \| |  | |/ .'`\ \`'_\ : / /'`\' |/ /__\\[ `/'`\]
+ *  \ `.___.'\ _/ /   \ \_  _| |_\   |_   _| |__) || \__. || \__. || |, | || \__. |// | |,| \__/  || \__., | |
+ *   `.____ .'|____| |____||_____|\____| |_______/  '.__.'  '.__.' \__/[___]'.__.' \'-;__/ '.__.;__]'.__.'[___]
+ *
+ * ===============================================================================================================
+ *
+ * The main entry point for the CAN Bootloader. This bootloader
+ * should work for the LPC1769.
+ *
+ * @author Chiel de Roest <M.A.deRoest@student.tudelft.nl> and Harmjan Treep <harmjan.treep@gmail.com>
+ */
 
-#ifdef __USE_CMSIS
+#include <stdint.h>
+
 #include "LPC17xx.h"
-#endif
+
+#include "protocol.h"
+#include "flash.h"
+#include "storage.h"
 
 #include <cr_section_macros.h>
-#include <NXP/crp.h>
 
-// Variable to store CRP value in. Will be placed automatically
-// by the linker when "Enable Code Read Protect" selected.
-// See crp.h header for more information
-__CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
+uint8_t data[4096];
+uint32_t sector;
 
-// TODO: insert other include files here
-
-// TODO: insert other definitions and declarations here
-
+/**
+ *
+ */
 int main(void) {
-	
-	// TODO: insert code here
+	// Initialize all needed components
+	initProtocol( &sector, &data[0] );
+	initFlash();
+	initStorage();
 
-	// Enter an infinite loop, just incrementing a counter
-	volatile static int i = 0 ;
-	while(1) {
-		i++ ;
-	}
+	while(1);
 	return 0 ;
 }
