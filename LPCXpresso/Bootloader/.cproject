@@ -34,8 +34,8 @@
 									<listOptionValue builtIn="false" value="__USE_CMSIS=CMSISv2.10_LPC17xx"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.634801374" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
-								<option id="com.crt.advproject.gcc.hdrlib.1710716514" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1586982466" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="com.crt.advproject.gcc.hdrlib.1710716514" name="Use headers for C library" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.1586982466" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/inc}&quot;"/>
 								</option>
 								<inputType id="com.crt.advproject.compiler.input.175151360" superClass="com.crt.advproject.compiler.input"/>
@@ -44,25 +44,25 @@
 								<option id="com.crt.advproject.gas.arch.1915572167" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.thumb.1749782292" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="gnu.both.asm.option.flags.crt.687271787" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__  -DDEBUG -D__CODE_RED " valueType="string"/>
-								<option id="com.crt.advproject.gas.hdrlib.1432068154" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.hdrlib.1432068154" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.assembler.input.2039780477" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.link.cpp.exe.debug.644113187" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug"/>
 							<tool id="com.crt.advproject.link.exe.debug.505993527" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug">
 								<option id="com.crt.advproject.link.arch.1771370126" name="Architecture" superClass="com.crt.advproject.link.arch" value="com.crt.advproject.link.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.link.thumb.278203663" name="Thumb mode" superClass="com.crt.advproject.link.thumb" value="true" valueType="boolean"/>
-								<option id="com.crt.advproject.link.script.1661498933" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;Bootloader_Debug.ld&quot;" valueType="string"/>
-								<option id="com.crt.advproject.link.manage.1171369682" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="true" valueType="boolean"/>
+								<option id="com.crt.advproject.link.script.1661498933" name="Linker script" superClass="com.crt.advproject.link.script" value="&quot;../linkscripts/Bootloader.ld&quot;" valueType="string"/>
+								<option id="com.crt.advproject.link.manage.1171369682" name="Manage linker script" superClass="com.crt.advproject.link.manage" value="false" valueType="boolean"/>
 								<option id="gnu.c.link.option.nostdlibs.1307900160" name="No startup or default libs (-nostdlib)" superClass="gnu.c.link.option.nostdlibs" value="true" valueType="boolean"/>
 								<option id="gnu.c.link.option.other.1148587194" name="Other options (-Xlinker [option])" superClass="gnu.c.link.option.other" valueType="stringList">
 									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
 									<listOptionValue builtIn="false" value="--gc-sections"/>
 								</option>
-								<option id="com.crt.advproject.link.gcc.hdrlib.150377641" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
-								<option id="gnu.c.link.option.libs.409019458" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="com.crt.advproject.link.gcc.hdrlib.150377641" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
+								<option id="gnu.c.link.option.libs.409019458" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="CMSISv2.10_LPC17xx"/>
 								</option>
-								<option id="gnu.c.link.option.paths.1559309347" superClass="gnu.c.link.option.paths" valueType="libPaths">
+								<option id="gnu.c.link.option.paths.1559309347" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/Debug}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.160065714" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
@@ -74,7 +74,7 @@
 					</folderInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.450406134.src/cr_startup_lpc176x.c" name="cr_startup_lpc176x.c" rcbsApplicability="disable" resourcePath="src/cr_startup_lpc176x.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.1215644569.1863989255">
 						<tool id="com.crt.advproject.gcc.exe.debug.1215644569.1863989255" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.1215644569">
-							<option id="gnu.c.compiler.option.optimization.flags.1324728603" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>
+							<option id="gnu.c.compiler.option.optimization.flags.1324728603" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>
 							<inputType id="com.crt.advproject.compiler.input.29920318" superClass="com.crt.advproject.compiler.input"/>
 						</tool>
 					</fileInfo>
@@ -230,18 +230,18 @@
 									<listOptionValue builtIn="false" value="__USE_CMSIS=CMSISv2.10_LPC17xx"/>
 								</option>
 								<option id="gnu.c.compiler.option.misc.other.1244216190" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 -fno-builtin -ffunction-sections -fdata-sections" valueType="string"/>
-								<option id="com.crt.advproject.gcc.hdrlib.1122180321" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
-								<option id="gnu.c.compiler.option.include.paths.1480550726" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="com.crt.advproject.gcc.hdrlib.1122180321" name="Use headers for C library" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
+								<option id="gnu.c.compiler.option.include.paths.1480550726" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/inc}&quot;"/>
 								</option>
-								<option id="com.crt.advproject.gcc.exe.release.option.optimization.level.1785588103" superClass="com.crt.advproject.gcc.exe.release.option.optimization.level" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+								<option id="com.crt.advproject.gcc.exe.release.option.optimization.level.1785588103" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.release.option.optimization.level" value="gnu.c.optimization.level.size" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.compiler.input.2080826609" superClass="com.crt.advproject.compiler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.gas.exe.release.485441796" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.release">
 								<option id="com.crt.advproject.gas.arch.1974022444" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm3" valueType="enumerated"/>
 								<option id="com.crt.advproject.gas.thumb.460380722" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="gnu.both.asm.option.flags.crt.831882466" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__  -DNDEBUG -D__CODE_RED " valueType="string"/>
-								<option id="com.crt.advproject.gas.hdrlib.321482742" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
+								<option id="com.crt.advproject.gas.hdrlib.321482742" name="Use headers for C library" superClass="com.crt.advproject.gas.hdrlib" value="com.crt.advproject.gas.hdrlib.codered" valueType="enumerated"/>
 								<inputType id="com.crt.advproject.assembler.input.1367452681" name="Additional Assembly Source Files" superClass="com.crt.advproject.assembler.input"/>
 							</tool>
 							<tool id="com.crt.advproject.link.cpp.exe.release.676843528" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.release"/>
@@ -255,11 +255,11 @@
 									<listOptionValue builtIn="false" value="-Map=&quot;${BuildArtifactFileBaseName}.map&quot;"/>
 									<listOptionValue builtIn="false" value="--gc-sections"/>
 								</option>
-								<option id="com.crt.advproject.link.gcc.hdrlib.265432873" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
-								<option id="gnu.c.link.option.libs.1146016150" superClass="gnu.c.link.option.libs" valueType="libs">
+								<option id="com.crt.advproject.link.gcc.hdrlib.265432873" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
+								<option id="gnu.c.link.option.libs.1146016150" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="CMSISv2.10_LPC17xx"/>
 								</option>
-								<option id="gnu.c.link.option.paths.1049926238" superClass="gnu.c.link.option.paths" valueType="libPaths">
+								<option id="gnu.c.link.option.paths.1049926238" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/Release}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.512098825" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
@@ -271,7 +271,7 @@
 					</folderInfo>
 					<fileInfo id="com.crt.advproject.config.exe.release.1416819475.src/cr_startup_lpc176x.c" name="cr_startup_lpc176x.c" rcbsApplicability="disable" resourcePath="src/cr_startup_lpc176x.c" toolsToInvoke="com.crt.advproject.gcc.exe.release.1081504848.1709089138">
 						<tool id="com.crt.advproject.gcc.exe.release.1081504848.1709089138" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.release.1081504848">
-							<option id="gnu.c.compiler.option.optimization.flags.1082446782" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>
+							<option id="gnu.c.compiler.option.optimization.flags.1082446782" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-Os" valueType="string"/>
 							<inputType id="com.crt.advproject.compiler.input.1092118948" superClass="com.crt.advproject.compiler.input"/>
 						</tool>
 					</fileInfo>
