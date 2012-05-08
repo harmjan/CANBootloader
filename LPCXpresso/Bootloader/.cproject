@@ -63,24 +63,17 @@
 								<option id="com.crt.advproject.link.gcc.hdrlib.150377641" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
 								<option id="gnu.c.link.option.libs.409019458" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="CMSISv2.10_LPC17xx"/>
+									<listOptionValue builtIn="false" value="LPC17xx-Drivers"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1559309347" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/Debug}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LPC17xx-Drivers/Debug}&quot;"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.c.linker.input.160065714" superClass="cdt.managedbuild.tool.gnu.c.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
 								</inputType>
 							</tool>
-						</toolChain>
-					</folderInfo>
-					<folderInfo id="com.crt.advproject.config.exe.debug.450406134.715607902" name="/" resourcePath="inc">
-						<toolChain id="com.crt.advproject.toolchain.exe.debug.2048526619" name="Code Red MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug" unusedChildren="">
-							<tool id="com.crt.advproject.cpp.exe.debug.1219705389" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug.489765401"/>
-							<tool id="com.crt.advproject.gcc.exe.debug.390169872" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.1215644569"/>
-							<tool id="com.crt.advproject.gas.exe.debug.2014255431" name="MCU Assembler" superClass="com.crt.advproject.gas.exe.debug.409295326"/>
-							<tool id="com.crt.advproject.link.cpp.exe.debug.910582776" name="MCU C++ Linker" superClass="com.crt.advproject.link.cpp.exe.debug.644113187"/>
-							<tool id="com.crt.advproject.link.exe.debug.1470013630" name="MCU Linker" superClass="com.crt.advproject.link.exe.debug.505993527"/>
 						</toolChain>
 					</folderInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.450406134.src/cr_startup_lpc176x.c" name="cr_startup_lpc176x.c" rcbsApplicability="disable" resourcePath="src/cr_startup_lpc176x.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.1215644569.1863989255">
