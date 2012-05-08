@@ -18,10 +18,16 @@
 
 #define MC24LC64_DATA_ADDR  0x0000		/* Address of start of data on the 24LC64 EEPROM */
 
+/**
+ * Initialize the storage unit.
+ */
 void initStorage( void ) {
 	initEeprom();
 }
 
+/**
+ * Save both the start and the stack pointer in the storage unit at the predefined address.
+ */
 void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
 	uint8_t i, y;
@@ -36,6 +42,9 @@ void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
 }
 
+/**
+ * Retrieve the start pointer from the storage unit.
+ */
 uint32_t getStartPointerStorage( void ) {
 
 	uint32_t startPointer = 0;
@@ -48,6 +57,9 @@ uint32_t getStartPointerStorage( void ) {
 	return startPointer;
 }
 
+/**
+ * Retrieve the stack pointer from the storage unit.
+ */
 uint32_t getStackPointerStorage( void ) {
 
 	uint32_t stackPointer = 0;
