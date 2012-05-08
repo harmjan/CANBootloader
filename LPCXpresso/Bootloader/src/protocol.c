@@ -26,7 +26,19 @@ uint8_t selected = 0;
 /** The message object used as temporary object */
 CanMessage msg;
 
-#define NODE_ID 0x10101010; /** The node ID, replace with generated value from device serial ID later */
+/**
+ * Set a random ID of 4 bytes in a uint8_t array.
+ *
+ * The random ID is generated from the unique device ID
+ * set by NXP during production.
+ * @param array The array in which to send
+ */
+static void setRandomID( uint8_t *array ) {
+	uint8_t i;
+	for( i=0; i<4; i++ ) {
+		array[i] = 0x10; // TODO Generate random ID from device serial
+	}
+}
 
 /**
  * Send an error to the programmer that the flashing or the CRC
@@ -37,12 +49,7 @@ CanMessage msg;
 static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
 	msg.id      = 0x106;
 	msg.length  = 5;
-	{
-		uint8_t i;
-		for( i=0; i<4; i++ ) {
-			msg.data[i] = 0x10; // TODO Generate random ID from device serial
-		}
-	}
+	setRandomID( msg.data );
 
 	msg.data[4] = (crcSuccess<<0) |  // CRC correct
 				  (flashSuccess<<1); // Flash correct
@@ -79,12 +86,8 @@ ProtocolState check( void ) {
 	case 0x101: // Register at the programmer
 		msg.id      = 0x102;
 		msg.length  = 4;
-		{
-			uint8_t i;
-			for( i=0; i<4; i++ ) {
-				msg.data[i] = 0x10; // TODO Generate random ID from device serial
-			}
-		}
+		setRandomID( msg.data );
+
 		canSend( &msg );
 		return NO_ACTION; // The bootloader should take no further action
 
