@@ -8,12 +8,13 @@
  *
  * ===============================================================================================================
  *
- * The functions to deal with taling to the onboard eeprom chip on the LPCXpresso.
+ * The functions to deal with talking to the onboard eeprom chip on the LPCXpresso.
  *
  * @author Chiel de Roest <M.A.deRoest@student.tudelft.nl> and Harmjan Treep <harmjan.treep@gmail.com>
  */
 
 #include "eeprom.h"
+#include "i2c.h"
 
 #define MC24LC64_SLAVE_ADDR 0xa0		/* I2C address of the 24LC64 EEPROM */
 
@@ -44,6 +45,6 @@ void saveByte( uint16_t address, uint8_t byte ) {
  */
 uint8_t getByte( uint16_t address ) {
 
-	return retrieve( address );
+	return receive( address );
 
 }
