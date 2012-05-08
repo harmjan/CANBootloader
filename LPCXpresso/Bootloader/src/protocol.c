@@ -149,7 +149,7 @@ ProtocolState check( void ) {
  */
 void dataStatus( flashStatus state ) {
 	switch( state ) {
-	case SUCCESS:
+	case FLASH_SUCCESS:
 		sendDataError(1,1);
 		break;
 

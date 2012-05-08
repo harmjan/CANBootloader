@@ -15,6 +15,19 @@
 
 #include "flash.h"
 
+/**
+ * Initialize the flash memory
+ */
 void initFlash( void ) {
 
+}
+
+/**
+ * Copy 4kB from RAM to flash.
+ *
+ * @param[in] ramPointer The start of the ram to copy from.
+ * @param[in] flashPointer The start of the flash to copy to.
+ */
+flashStatus flashNode( uint32_t *ramPointer, uint32_t *flashPointer ) {
+	return FLASH_SUCCESS;
 }
