@@ -18,7 +18,7 @@
 #ifndef I2C_H__
 #define I2C_H__
 
-void initI2C( void );
+void initI2C( uint32_t slaveAddress );
 void send( uint8_t byte );
 uint8_t receive( void );
 
