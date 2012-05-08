@@ -15,6 +15,7 @@
 
 #include "protocol.h"
 #include "can.h"
+#include "iap.h"
 
 uint8_t *data; /** Data we have received so far from the programmer */
 uint8_t *index; /** The index in the data for the point until which we received data */
@@ -34,9 +35,12 @@ CanMessage msg;
  * @param array The array in which to send
  */
 static void setRandomID( uint8_t *array ) {
+	uint8_t serial[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	getDeviceSerial( &serial );
+
 	uint8_t i;
 	for( i=0; i<4; i++ ) {
-		array[i] = 0x10; // TODO Generate random ID from device serial
+		array[i] = serial[i]; // TODO Confirm randomness of these 4 bytes
 	}
 }
 
@@ -119,7 +123,6 @@ ProtocolState check( void ) {
 				index++;
 			}
 		}
-
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x105: // CRC
