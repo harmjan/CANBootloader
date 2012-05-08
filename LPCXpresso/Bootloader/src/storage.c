@@ -27,6 +27,8 @@ void initStorage( void ) {
 
 /**
  * Save both the start and the stack pointer in the storage unit at the predefined address.
+ * @param[in] startpointer The value of the startpointer.
+ * @param[in] stackpointer The value of the stackpointer.
  */
 void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
@@ -44,6 +46,7 @@ void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
 /**
  * Retrieve the start pointer from the storage unit.
+ * @return The value of the start pointer.
  */
 uint32_t getStartPointerStorage( void ) {
 
@@ -59,6 +62,7 @@ uint32_t getStartPointerStorage( void ) {
 
 /**
  * Retrieve the stack pointer from the storage unit.
+ * @return The value of the stack pointer.
  */
 uint32_t getStackPointerStorage( void ) {
 

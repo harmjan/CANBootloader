@@ -17,14 +17,33 @@
 
 #define MC24LC64_SLAVE_ADDR 0xa0		/* I2C address of the 24LC64 EEPROM */
 
+/**
+ * Initialize the EEPROM peripheral.
+ */
 void initEeprom( void ) {
-
+	initI2C( MC24LC64_SLAVE_ADDR );
 }
 
+/**
+ * Saves the byte of data at location 'address' in EEPROM.
+ * @param[in] address The address for the EEPROM to save the data to.
+ * @param[in] byte    The data to save.
+ */
 void saveByte( uint16_t address, uint8_t byte ) {
 
+	send( ( address >> 8 ) & 0xff );
+	send( address & 0xff );
+	send( byte );
+
 }
 
+/**
+ * Retrieves the byte stored in the EEPROM at the given address.
+ * @param[in] address Address of the byte in the EEPROM.
+ * @return            The byte in the EEPROM at the location of the given address.
+ */
 uint8_t getByte( uint16_t address ) {
-	return 0;
+
+	return retrieve( address );
+
 }
