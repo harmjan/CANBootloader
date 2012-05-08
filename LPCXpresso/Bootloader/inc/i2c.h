@@ -20,6 +20,6 @@
 
 void initI2C( uint32_t slaveAddress );
 void send( uint8_t byte );
-uint8_t receive( void );
+uint8_t receive( uint16_t address );
 
 #endif
