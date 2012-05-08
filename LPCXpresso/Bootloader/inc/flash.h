@@ -29,6 +29,6 @@ typedef enum {
 } flashStatus;
 
 void initFlash( void );
-flashStatus flashNode( uint32_t *ramPointer, uint32_t *flashPointer, uint32_t length );
+flashStatus flashNode( uint8_t *ramPointer, uint8_t startSector );
 
 #endif

@@ -25,7 +25,7 @@
 #include <cr_section_macros.h>
 
 uint8_t data[4096];
-uint32_t sector;
+uint8_t sector;
 
 /**
  *

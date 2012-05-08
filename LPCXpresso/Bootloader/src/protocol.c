@@ -18,7 +18,7 @@
 
 uint8_t *data; /** Data we have received so far from the programmer */
 uint8_t *index; /** The index in the data for the point until which we received data */
-uint32_t *sector; /** The sector to write the data to */
+uint8_t *sector; /** The sector to write the data to */
 
 /** If this node has been selected by the programmer for reprogramming */
 uint8_t selected = 0;
@@ -63,7 +63,7 @@ static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
  * @param[out] *sectorIn Pointer to the variable which stores the sector to write to.
  * @param[out] *dataIn Pointer to the variable which stores the data to write.
  */
-void initProtocol( uint32_t *sectorIn, uint8_t *dataIn ) {
+void initProtocol( uint8_t *sectorIn, uint8_t *dataIn ) {
 	initCan();
 
 	data   = dataIn;
