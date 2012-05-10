@@ -36,7 +36,7 @@ CanMessage msg;
  */
 static void setRandomID( uint8_t *array ) {
 	uint8_t serial[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	getDeviceSerial( &serial );
+	getDeviceSerial( &serial[0] );
 
 	uint8_t i;
 	for( i=0; i<4; i++ ) {
