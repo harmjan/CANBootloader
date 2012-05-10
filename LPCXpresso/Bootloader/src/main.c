@@ -24,15 +24,14 @@
 
 #include <cr_section_macros.h>
 
-uint8_t data[4096];
-uint8_t sector;
+DataBlock block;
 
 /**
  *
  */
 int main(void) {
 	// Initialize all needed components
-	initProtocol( &sector, &data[0] );
+	initProtocol( &block );
 	initFlash();
 	initStorage();
 

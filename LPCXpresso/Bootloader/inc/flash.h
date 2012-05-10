@@ -28,7 +28,12 @@ typedef enum {
 	INVALID_POINTER   = -3  /** One of the pointer is invalid or the region to be copied is invalid. */
 } flashStatus;
 
+typedef struct {
+	uint8_t sector;
+	uint8_t data[4096];
+} DataBlock;
+
 void initFlash( void );
-flashStatus flashNode( uint8_t *ramPointer, uint8_t startSector );
+flashStatus flashNode( DataBlock *block );
 
 #endif

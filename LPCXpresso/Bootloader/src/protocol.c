@@ -17,9 +17,8 @@
 #include "can.h"
 #include "iap.h"
 
-uint8_t *data; /** Data we have received so far from the programmer */
+DataBlock *block; /** The sector to program and the data we have received so far */
 uint8_t *index; /** The index in the data for the point until which we received data */
-uint8_t *sector; /** The sector to write the data to */
 
 /** If this node has been selected by the programmer for reprogramming */
 uint8_t selected = 0;
@@ -64,15 +63,12 @@ static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
 /**
  * Initialize the CAN peripheral and setup everything needed to
  * comply to the CAN protocol.
- * @param[out] *sectorIn Pointer to the variable which stores the sector to write to.
- * @param[out] *dataIn Pointer to the variable which stores the data to write.
+ * @param[out] *blockIn The block to load the data in when receiving
  */
-void initProtocol( uint8_t *sectorIn, uint8_t *dataIn ) {
+void initProtocol( DataBlock *blockIn ) {
 	initCan();
 
-	data   = dataIn;
-	index  = dataIn;
-	sector = sectorIn;
+	block  = blockIn;
 }
 
 /**
@@ -101,7 +97,8 @@ ProtocolState check( void ) {
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x103: // Address of data to come
-		*sector = msg.data[0] << 8 | msg.data[1];
+		block->sector = msg.data[0] << 8 | msg.data[1];
+		index = &block->data[0];
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x104: // New data
@@ -112,7 +109,7 @@ ProtocolState check( void ) {
 		// If the index is further then the edge of the data region
 		// this node must have missed a CRC message or something. Go
 		// into error mode.
-		if( index > &data[4095] ) {
+		if( index > &block->data[4096] ) {
 			while(1); // TODO Better error
 		}
 

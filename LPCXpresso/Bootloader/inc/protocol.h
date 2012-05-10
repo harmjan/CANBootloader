@@ -30,7 +30,7 @@ typedef enum {
 	RESET_NODE  /** Reset the node  */
 } ProtocolState;
 
-void initProtocol( uint8_t *sector, uint8_t *data );
+void initProtocol( DataBlock *block );
 ProtocolState check( void );
 void dataStatus( flashStatus state );
 

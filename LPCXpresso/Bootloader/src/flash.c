@@ -28,6 +28,6 @@ void initFlash( void ) {
  * @param[in] ramPointer The start of the ram to copy from.
  * @param[in] startSector The sector to start the write from
  */
-flashStatus flashNode( uint8_t *ramPointer, uint8_t startSector ) {
+flashStatus flashNode( DataBlock *block ) {
 	return FLASH_SUCCESS;
 }
