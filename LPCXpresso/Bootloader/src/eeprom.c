@@ -32,9 +32,11 @@ void initEeprom( void ) {
  */
 void saveByte( uint16_t address, uint8_t byte ) {
 
-	send( ( address >> 8 ) & 0xff );
-	send( address & 0xff );
-	send( byte );
+	//send( ( address >> 8 ) & 0xff );
+	//send( address & 0xff );
+	//send( byte );
+
+	int8_t temp = sendI2C( MC24LC64_SLAVE_ADDR, address, byte );
 
 }
 
@@ -45,6 +47,8 @@ void saveByte( uint16_t address, uint8_t byte ) {
  */
 uint8_t getByte( uint16_t address ) {
 
-	return receive( address );
+	//return receive( address );
+
+	return receiveI2C( MC24LC64_SLAVE_ADDR, address );
 
 }
