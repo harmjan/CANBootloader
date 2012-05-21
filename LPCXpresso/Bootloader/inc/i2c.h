@@ -46,12 +46,15 @@
 #define I2CSTATE_ARB_LOSS  0x102
 
 #define I2C_MES_START      0x08
+#define I2C_MES_RSTART     0x10
 #define I2C_MES_SLAW_ACK	0x18
 #define I2C_MES_SLAW_NACK	0x20
-#define I2C_MES_DAT_ACK		0x28
+#define I2C_MES_DATW_ACK	0x28
 #define I2C_MES_ARBLOST		0x38
 #define I2C_MES_SLAR_ACK   0x40
 #define I2C_MES_SLAR_NACK  0x48
+#define I2C_MES_DATR_ACK   0x50
+#define I2C_MES_DATR_NACK  0x58
 
 #define I2C_READ			0x0
 #define I2C_WRITE			0x1
@@ -67,10 +70,10 @@
 void initI2C( uint32_t deviceAddress );
 void deInitI2C( void );
 uint8_t sendI2C( uint8_t device, uint16_t address, uint8_t byte );
-uint8_t I2CEngine( uint8_t RdWr );
-static uint8_t pollI2C( void );
 uint8_t receiveI2C( uint8_t device, uint16_t address );
-uint8_t startI2C( void );
-void stopI2C( void );
+static uint8_t I2CEngine( uint8_t RdWr );
+static uint8_t pollI2C( void );
+static uint8_t startI2C( void );
+static void stopI2C( void );
 
 #endif

@@ -17,8 +17,8 @@
 #include "LPC17xx.h"
 
 uint32_t I2CMasterState = I2CSTATE_IDLE;
-uint8_t  I2CMasterBuffer[MASTER_BUFSIZE]; // TODO = 3?
-uint8_t  I2CSlaveBuffer[SLAVE_BUFSIZE];  // TODO = 1
+uint8_t  I2CMasterBuffer[MASTER_BUFSIZE];
+uint8_t  I2CSlaveBuffer[SLAVE_BUFSIZE];
 uint8_t  wrIndex  = 0;
 uint8_t  rdIndex  = 0;
 uint8_t  wrLength = 0;
@@ -26,23 +26,27 @@ uint8_t  rdLength = 0;
 
 uint8_t sendI2C( uint8_t device, uint16_t address, uint8_t byte ) {
 
-	initI2C( device );
-
 	/* Data to be send */
-	I2CMasterBuffer[0] = device;                 /* Address of slave device */
+	I2CMasterBuffer[0] = device;                   /* Address of slave device */
 	I2CMasterBuffer[1] = ( address >> 8 ) & 0xff;  /* MSB of address of eeprom */
-	I2CMasterBuffer[2] = address & 0xff;         /* LSB .. */
-	I2CMasterBuffer[3] = byte;					 /* Data */
+	I2CMasterBuffer[2] = address & 0xff;           /* LSB .. */
+	I2CMasterBuffer[3] = byte;					   /* Data */
 
 	uint8_t state = I2CEngine( I2C_WRITE );
+
+  	/**
+  	 * TODO: error handling when reading fails
+  	 */
+
+	uint16_t delay = 0xffff;
+	uint16_t i;
+	for ( i = 0; i < delay; i++ );  /* Delay for internal write cycle */
 
 	return state;
 
 }
 
 uint8_t receiveI2C( uint8_t device, uint16_t address ) {
-
-	initI2C( device );
 
 	I2CMasterBuffer[0] = device;					/* Address of slave device */
 	I2CMasterBuffer[1] = ( address >> 8 ) & 0xff;   /* MSB of address of eeprom */
@@ -51,7 +55,11 @@ uint8_t receiveI2C( uint8_t device, uint16_t address ) {
 
   	uint8_t state = I2CEngine( I2C_READ );
 
-	return 0;
+  	/**
+  	 * TODO: error handling when reading fails
+  	 */
+
+	return I2CSlaveBuffer[0];
 }
 
 /**
@@ -59,13 +67,13 @@ uint8_t receiveI2C( uint8_t device, uint16_t address ) {
  * The engine listens the I2C bus and handles messages accordingly.
  * @param[in] RdWr Modus, either read (I2C_READ) or write (I2C_WRITE).
  */
-uint8_t I2CEngine( uint8_t RdWr ) {
+static uint8_t I2CEngine( uint8_t RdWr ) {
 
 	I2CMasterState = I2CSTATE_IDLE;
 	wrIndex = 0;
 	rdIndex = 0;
 
-	wrLength = RdWr ? 3 : 3;  // TODO: clean up later, always 3
+	wrLength = RdWr ? 4 : 3;
 	rdLength = RdWr ? 0 : 1;
 
 	if ( startI2C() == 0 ) {
@@ -101,6 +109,12 @@ static uint8_t pollI2C( void ) {
 				I2CMasterState = I2CSTATE_PENDING;
 			break;
 
+			case I2C_MES_RSTART : // 0x10
+				rdIndex = 0;
+				LPC_I2C1->I2DAT = I2CMasterBuffer[wrIndex++];
+				LPC_I2C1->I2CONCLR = (I2C_CON_STAC | I2C_CON_SIC);
+			break;
+
 			case I2C_MES_SLAW_ACK : // 0x18
 				LPC_I2C1->I2DAT = I2CMasterBuffer[wrIndex++];
 				LPC_I2C1->I2CONCLR = ( I2C_CON_STAC | I2C_CON_STOC | I2C_CON_SIC );
@@ -112,10 +126,10 @@ static uint8_t pollI2C( void ) {
 				I2CMasterState = I2CSTATE_NACK;
 			break;
 
-			case I2C_MES_DAT_ACK : // 0x28
+			case I2C_MES_DATW_ACK : // 0x28
 
 				/* send more data if not yet finished */
-				if ( wrIndex <= wrLength ) {
+				if ( wrIndex < wrLength ) { // TODO
 					LPC_I2C1->I2DAT = I2CMasterBuffer[wrIndex++];
 					LPC_I2C1->I2CONCLR = ( I2C_CON_STAC | I2C_CON_STOC | I2C_CON_SIC );
 				}
@@ -131,6 +145,7 @@ static uint8_t pollI2C( void ) {
 						LPC_I2C1->I2CONSET = I2C_CON_STAC;
 					}
 				}
+				LPC_I2C1->I2CONCLR = I2C_CON_SIC;
 			break;
 
 			case I2C_MES_ARBLOST : // 0x38
@@ -139,16 +154,8 @@ static uint8_t pollI2C( void ) {
 			break;
 
 			case I2C_MES_SLAR_ACK : // 0x40
-
-				/* Check if only one byte is to be read from the slave device */
-				if ( rdLength == 1 ) {
-					LPC_I2C1->I2CONCLR = I2C_CON_AAC;
-				}
-				else { // TODO don't need this, never more than 1 byte read
-					LPC_I2C1->I2CONSET = I2C_CON_AAC;
-				}
+				LPC_I2C1->I2CONCLR = I2C_CON_AAC;
 				LPC_I2C1->I2CONCLR = ( I2C_CON_STAC | I2C_CON_STOC | I2C_CON_SIC );
-
 			break;
 
 			case I2C_MES_SLAR_NACK : // 0x48
@@ -157,8 +164,16 @@ static uint8_t pollI2C( void ) {
 				I2CMasterState = I2CSTATE_NACK;
 			break;
 
+			case I2C_MES_DATR_NACK : // 0x58
+				I2CSlaveBuffer[rdIndex++] = LPC_I2C1->I2DAT;
+				I2CMasterState = I2CSTATE_ACK;
+				LPC_I2C1->I2CONSET = I2C_CON_STOC;
+				LPC_I2C1->I2CONCLR = ( I2C_CON_STAC | I2C_CON_SIC );
+			break;
+
 			default :
-				// TODO
+				I2CMasterState = I2CSTATE_NACK;
+				LPC_I2C1->I2CONCLR = I2C_CON_SIC;
 			break;
 		}
 
@@ -201,7 +216,6 @@ void initI2C( uint32_t deviceAddress ) {
 }
 
 void deInit( void ) {
-	// TODO
 	stopI2C();
 }
 
@@ -210,7 +224,7 @@ void deInit( void ) {
  * Enter the master transmitter mode by setting the STA bit.
  * @return Boolean indicating whether the setting of the STA bit resulted in the I2C1 peripheral to become the master transmitter.
  */
-uint8_t startI2C( void ) {
+static uint8_t startI2C( void ) {
 
 	uint32_t timer = 0;
 
@@ -229,9 +243,8 @@ uint8_t startI2C( void ) {
  * Stop the I2C1 peripheral.
  * Disables the I2C1 peripheral by clearing the enable bit and thus disabling it.
  */
-void stopI2C( void ) {
+static void stopI2C( void ) {
 
-	// TODO: more? will probably only work again after reset
 	LPC_I2C1->I2CONCLR = I2C_CON_ENC;
 	I2CMasterState = I2CSTATE_IDLE;
 
