@@ -47,7 +47,12 @@ void initCan( void ) {
 	                (0x1<<2) | // Release receive buffer
 	                (0x1<<3);  // Clear data overrun bit
 
-	LPC_CAN2->BTR = 0x5cc001; // Set the bit rate of the CAN peripheral to 100kbit/s
+	LPC_CAN2->BTR = 0xdcc001; // Set the bit rate of the CAN peripheral to 100kbit/s
+	                          // BRP   = 1
+	                          // SJW   = 3
+	                          // TESG1 = 12
+	                          // TESG2 = 5
+	                          // SAM   = 1
 
 	LPC_CAN2->MOD = (1<<2); // Enable the CAN peripheral again
 }
