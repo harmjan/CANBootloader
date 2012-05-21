@@ -54,7 +54,7 @@ void initCan( void ) {
 	                          // TESG2 = 5
 	                          // SAM   = 1
 
-	LPC_CAN2->MOD = (1<<2); // Enable the CAN peripheral again
+	LPC_CAN2->MOD = 0; // Enable the CAN peripheral again
 }
 
 /**
