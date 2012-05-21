@@ -18,8 +18,8 @@
 
 #include <stdint.h>
 
-void prepareFlash( uint8_t sector );
+uint8_t prepareFlash( uint8_t sector );
 uint8_t checkBlank( uint8_t sector );
 uint8_t compare( uint8_t *data, uint8_t sector );
-void writeFlash( uint8_t *data, uint8_t sector );
+uint8_t writeFlash( uint8_t *data, uint8_t sector );
 void getDeviceSerial( uint8_t *serial );

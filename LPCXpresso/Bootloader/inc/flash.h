@@ -29,8 +29,8 @@ typedef enum {
 } flashStatus;
 
 typedef struct {
+	uint8_t data[4096]; // TODO: IAP will not work if data is not word-aligned. Use linker script.
 	uint8_t sector;
-	uint8_t data[4096];
 } DataBlock;
 
 void initFlash( void );

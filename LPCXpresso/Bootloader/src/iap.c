@@ -22,9 +22,20 @@ IAP iapFunction=(IAP)IAP_LOCATION;
  * Prepare the flash for writing.
  *
  * @param[in] sector The sector to prepare for writing.
+ * @return Error code.
  */
-void prepareFlash( uint8_t sector ) {
-	iap_write_prepare( sector, sector );
+uint8_t prepareFlash( uint8_t sector ) {
+	return iap_write_prepare( sector, sector );
+}
+
+/**
+ * Blanks the given sector, i.e. fills completely with 1's.
+ *
+ * @param[in] sector The sector to be blanked.
+ * @return Error code.
+ */
+uint8_t blankFlash( uint8_t sector ) {
+	return iap_erase( sector, sector );
 }
 
 /**
@@ -32,13 +43,10 @@ void prepareFlash( uint8_t sector ) {
  * is completely filled with 1's.
  *
  * @param[in] sector The sector to blank check.
- * @return If the sector was blank. If an error was encountered
- *         false is returned.
+ * @return Error code.
  */
 uint8_t checkBlank( uint8_t sector ) {
-	unsigned int status = iap_blank_check( sector, sector );
-
-	return status == CMD_SUCCESS;
+	return iap_blank_check( sector, sector );
 }
 
 /**
@@ -50,9 +58,7 @@ uint8_t checkBlank( uint8_t sector ) {
  *         false is returned.
  */
 uint8_t compare( uint8_t *data, uint8_t sector ) {
-	unsigned int status = iap_compare( data, sector_start_adress[sector], 4*1024 );
-
-	return status == CMD_SUCCESS;
+	return iap_compare( sector_start_adress[sector], data, 4*1024 );
 }
 
 /**
@@ -64,8 +70,8 @@ uint8_t compare( uint8_t *data, uint8_t sector ) {
  * @param[in] data A pointer to the start of the data in the RAM.
  * @param[in] sector The sector where the write starts.
  */
-void writeFlash( uint8_t *data, uint8_t sector ) {
-	iap_write( data, sector_start_adress[sector], 4*1024 );
+uint8_t writeFlash( uint8_t *data, uint8_t sector ) {
+	return iap_write( data, sector_start_adress[sector], 4*1024 );
 }
 
 /**
