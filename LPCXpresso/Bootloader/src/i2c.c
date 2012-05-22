@@ -14,6 +14,7 @@
  */
 
 #include "i2c.h"
+#include "timer.h"
 #include "LPC17xx.h"
 
 uint32_t I2CMasterState = I2CSTATE_IDLE;
@@ -38,9 +39,7 @@ uint8_t sendI2C( uint8_t device, uint16_t address, uint8_t byte ) {
   	 * TODO: error handling when reading fails
   	 */
 
-	uint16_t delay = 0xffff;
-	uint16_t i;
-	for ( i = 0; i < delay; i++ );  /* Delay for internal write cycle */
+	timerDelay(5);  /* Delay for internal write cycle */
 
 	return state;
 
