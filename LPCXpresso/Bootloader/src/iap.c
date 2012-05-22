@@ -14,7 +14,6 @@
  */
 
 #include "iap.h"
-#include "lpc17xx_iap.h"
 
 IAP iapFunction=(IAP)IAP_LOCATION;
 
@@ -25,7 +24,16 @@ IAP iapFunction=(IAP)IAP_LOCATION;
  * @return Error code.
  */
 uint8_t prepareFlash( uint8_t sector ) {
-	return iap_write_prepare( sector, sector );
+
+	uint8_t prepare = iap_write_prepare( sector, sector );
+
+	if ( prepare == BUSY ) {
+		return COMPARE_ERROR;
+	}
+	else {
+		return prepare;
+	}
+
 }
 
 /**
@@ -35,7 +43,16 @@ uint8_t prepareFlash( uint8_t sector ) {
  * @return Error code.
  */
 uint8_t blankFlash( uint8_t sector ) {
-	return iap_erase( sector, sector );
+
+	uint8_t blank = iap_erase( sector, sector );
+
+	if ( blank == CMD_SUCCESS || blank == INVALID_SECTOR ) {
+		return blank;
+	}
+	else {
+		return COMPARE_ERROR;
+	}
+
 }
 
 /**
@@ -46,7 +63,16 @@ uint8_t blankFlash( uint8_t sector ) {
  * @return Error code.
  */
 uint8_t checkBlank( uint8_t sector ) {
-	return iap_blank_check( sector, sector );
+
+	uint8_t checkIfBlank = iap_blank_check( sector, sector );
+
+	if ( checkIfBlank == CMD_SUCCESS || checkIfBlank == INVALID_SECTOR ) {
+		return checkIfBlank;
+	}
+	else {
+		return COMPARE_ERROR;
+	}
+
 }
 
 /**
@@ -58,7 +84,26 @@ uint8_t checkBlank( uint8_t sector ) {
  *         false is returned.
  */
 uint8_t compare( uint8_t *data, uint8_t sector ) {
-	return iap_compare( sector_start_adress[sector], data, 4*1024 );
+
+	uint8_t compare = iap_compare( sector_start_adress[sector], data, 4*1024 );
+
+	switch ( compare ) {
+
+		case CMD_SUCCESS:
+			return CMD_SUCCESS;
+		break;
+		case COMPARE_ERROR:
+		case COUNT_ERROR:
+			return COMPARE_ERROR;
+		break;
+		case ADDR_ERROR:
+		case ADDR_NOT_MAPPED:
+		default:
+			return INVALID_SECTOR;
+		break;
+
+	}
+
 }
 
 /**
@@ -71,7 +116,26 @@ uint8_t compare( uint8_t *data, uint8_t sector ) {
  * @param[in] sector The sector where the write starts.
  */
 uint8_t writeFlash( uint8_t *data, uint8_t sector ) {
-	return iap_write( data, sector_start_adress[sector], 4*1024 );
+
+	uint8_t write = iap_write( data, sector_start_adress[sector], 4*1024 );
+
+	switch ( write ) {
+
+		case CMD_SUCCESS:
+			return CMD_SUCCESS;
+		break;
+		case SRC_ADDR_ERROR:
+		case DST_ADDR_ERROR:
+		case SRC_ADDR_NOT_MAPPED:
+		case DST_ADDR_NOT_MAPPED:
+			return INVALID_SECTOR;
+		break;
+		default:
+			return COMPARE_ERROR;
+		break;
+
+	}
+
 }
 
 /**

@@ -33,31 +33,69 @@ void initFlash( void ) {
 flashStatus flashNode( DataBlock *block ) {
 
 	/*
-	 * TODO: check if writing in bootloader code
+	 * Prepare flash.
 	 */
-
-	if ( prepareFlash(block->sector ) != 0 ) {
+	uint8_t prepare = prepareFlash( block->sector );
+	if ( prepare == INVALID_SECTOR) {
 		return INVALID_POINTER;
 	}
-
-	if ( blankFlash( block->sector ) != 0 ) {
-		return INVALID_POINTER; // TODO: more specific status
-	}
-
-	if ( checkBlank( block->sector ) != 0 ) {
-		return INVALID_POINTER; // TODO: more specific status
-	}
-
-	if ( prepareFlash(block->sector ) != 0 ) {
-		return INVALID_POINTER;
-	}
-
-	if ( writeFlash( block->data, block->sector ) != 0 ) {
-		return INVALID_POINTER; // TODO: more specific status
-	}
-
-	if ( compare( block->data, block->sector ) != 0 ) {
+	else if ( prepare == COMPARE_ERROR ) {
 		return COMPARE_FAILURE;
+	}
+
+	/*
+	 * Blank flash.
+	 */
+	uint8_t blank = blankFlash( block->sector );
+	if ( blank == INVALID_SECTOR ) {
+		return INVALID_POINTER;
+	}
+	else if ( prepare == COMPARE_ERROR ) {
+		return COMPARE_FAILURE;
+	}
+
+	/*
+	 * Check if flash sector is blanked.
+	 */
+	uint8_t checkIfBlank = checkBlank( block->sector );
+	if ( checkIfBlank == COMPARE_ERROR ) {
+		return COMPARE_FAILURE;
+	}
+	else if ( checkIfBlank == INVALID_SECTOR ) {
+		return INVALID_POINTER;
+	}
+
+	/*
+	 * Prepare flash.
+	 */
+	prepare = prepareFlash( block->sector );
+	if ( prepare == INVALID_SECTOR) {
+		return INVALID_POINTER;
+	}
+	else if ( prepare == COMPARE_ERROR ) {
+		return COMPARE_FAILURE;
+	}
+
+	/*
+	 * Write 4kB to flash.
+	 */
+	uint8_t write = writeFlash( block->data, block->sector );
+	if ( write == INVALID_SECTOR ) {
+		return INVALID_POINTER;
+	}
+	else if ( write == COMPARE_ERROR ) {
+		return COMPARE_FAILURE;
+	}
+
+	/*
+	 * Compare flashed 4kB.
+	 */
+	uint8_t compareData = compare( block->data, block->sector );
+	if ( compareData == COMPARE_ERROR ) {
+		return COMPARE_FAILURE;
+	}
+	else if ( compare == INVALID_SECTOR ){
+		return INVALID_POINTER;
 	}
 
 	return FLASH_SUCCESS;

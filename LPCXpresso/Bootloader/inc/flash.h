@@ -22,7 +22,7 @@
  * The status of a flash action.
  */
 typedef enum {
-	FLASH_SUCCESS     = 0,  /** No errors. */
+	FLASH_SUCCESS     =  0,  /** No errors. */
 	COMPARE_FAILURE   = -1, /** Flashing went wrong, after flashing the compare failed so the flash is probably broken. */
 	BOOTLOADER_SECTOR = -2, /** Tried to flash the bootloader sector. */
 	INVALID_POINTER   = -3  /** One of the pointer is invalid or the region to be copied is invalid. */
