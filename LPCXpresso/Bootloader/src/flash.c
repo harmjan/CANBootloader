@@ -20,7 +20,7 @@
  * Initialize the flash memory
  */
 void initFlash( void ) {
-	SystemCoreClockUpdate();
+
 }
 
 /**
@@ -94,7 +94,7 @@ flashStatus flashNode( DataBlock *block ) {
 	if ( compareData == COMPARE_ERROR ) {
 		return COMPARE_FAILURE;
 	}
-	else if ( compare == INVALID_SECTOR ){
+	else if ( compareData == INVALID_SECTOR ){
 		return INVALID_POINTER;
 	}
 
