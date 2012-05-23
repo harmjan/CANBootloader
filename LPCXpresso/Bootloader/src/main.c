@@ -22,6 +22,7 @@
 #include "flash.h"
 #include "storage.h"
 #include "timer.h"
+#include "watchdog.h"
 
 #include <cr_section_macros.h>
 
@@ -65,7 +66,7 @@ int main(void) {
 			break;
 
 		case RESET_NODE:
-
+			reset();
 			break;
 
 		case BOOTLOADER:
