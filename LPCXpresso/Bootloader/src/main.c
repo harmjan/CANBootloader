@@ -23,7 +23,6 @@
 #include "storage.h"
 #include "timer.h"
 #include "watchdog.h"
-#include "verify.h"
 
 #include <cr_section_macros.h>
 
@@ -46,7 +45,6 @@ int main(void) {
 	initFlash();
 	initStorage();
 	initTimer();
-	initVerify();
 
 	// Set the timer for 1 second. If we have not
 	// received the signal to go into bootloader
