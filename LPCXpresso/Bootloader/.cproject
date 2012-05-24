@@ -36,6 +36,7 @@
 								<option id="com.crt.advproject.gcc.hdrlib.1710716514" name="Use headers for C library" superClass="com.crt.advproject.gcc.hdrlib" value="com.crt.advproject.gcc.hdrlib.codered" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1586982466" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/inc}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Bootloaderlib/inc}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LPC17xx-Drivers/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/inc}&quot;"/>
 								</option>
@@ -61,10 +62,12 @@
 								</option>
 								<option id="com.crt.advproject.link.gcc.hdrlib.150377641" name="Use C library" superClass="com.crt.advproject.link.gcc.hdrlib" value="com.crt.advproject.gcc.link.hdrlib.codered.none" valueType="enumerated"/>
 								<option id="gnu.c.link.option.libs.409019458" name="Libraries (-l)" superClass="gnu.c.link.option.libs" valueType="libs">
+									<listOptionValue builtIn="false" value="Bootloaderlib"/>
 									<listOptionValue builtIn="false" value="CMSISv2.10_LPC17xx"/>
 									<listOptionValue builtIn="false" value="LPC17xx-Drivers"/>
 								</option>
 								<option id="gnu.c.link.option.paths.1559309347" name="Library search path (-L)" superClass="gnu.c.link.option.paths" valueType="libPaths">
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/Bootloaderlib/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/CMSISv2.10_LPC17xx/Debug}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/LPC17xx-Drivers/Debug}&quot;"/>
 								</option>
