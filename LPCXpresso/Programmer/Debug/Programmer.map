@@ -1,0 +1,310 @@
+Archive member included because of file (symbol)
+
+/home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+                              ./src/cr_startup_lpc176x.o (SystemInit)
+/home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+                              ./src/main.o (initTimer)
+/usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+                              ./src/cr_startup_lpc176x.o (__main)
+
+Discarded input sections
+
+ .text          0x00000000        0x0 ./src/cr_startup_lpc176x.o
+ .data          0x00000000        0x0 ./src/cr_startup_lpc176x.o
+ .bss           0x00000000        0x0 ./src/cr_startup_lpc176x.o
+ .text          0x00000000        0x0 ./src/main.o
+ .data          0x00000000        0x0 ./src/main.o
+ .bss           0x00000000        0x0 ./src/main.o
+ .crp           0x00000000        0x4 ./src/main.o
+ .text          0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .data          0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .bss           0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .text.SystemCoreClockUpdate
+                0x00000000       0xd8 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .data.SystemCoreClock
+                0x00000000        0x4 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .text          0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .data          0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .bss           0x00000000        0x0 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .text.timerDelay
+                0x00000000       0x30 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .text.timerSet
+                0x00000000       0x28 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .text.timerPassed
+                0x00000000       0x14 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .text          0x00000000        0x0 /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+ .data          0x00000000        0x0 /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+ .bss           0x00000000        0x0 /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+MFlash512        0x00000000         0x00080000         xr
+RamLoc32         0x10000000         0x00008000         xrw
+RamAHB32         0x2007c000         0x00008000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD ./src/cr_startup_lpc176x.o
+LOAD ./src/main.o
+LOAD /home/chiel/Documents/BachelorProject/LPCXpresso/LPC17xx-Drivers/Debug/libLPC17xx-Drivers.a
+LOAD /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a
+LOAD /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a
+START GROUP
+LOAD /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a
+LOAD /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/thumb2/libcr_eabihelpers.a
+END GROUP
+                0x00080000                __top_MFlash512 = 0x80000
+                0x10008000                __top_RamLoc32 = 0x10008000
+                0x20084000                __top_RamAHB32 = 0x20084000
+
+.text           0x00000000      0x2fc
+ FILL mask 0xff
+ *(.isr_vector)
+ .isr_vector    0x00000000       0xcc ./src/cr_startup_lpc176x.o
+                0x00000000                g_pfnVectors
+                0x000000cc                . = ALIGN (0x4)
+                0x000000cc                __section_table_start = .
+                0x000000cc                __data_section_table = .
+                0x000000cc        0x4 LONG 0x2fc LOADADDR (.data)
+                0x000000d0        0x4 LONG 0x10000000 ADDR (.data)
+                0x000000d4        0x4 LONG 0x0 SIZEOF (.data)
+                0x000000d8        0x4 LONG 0x2fc LOADADDR (.data_RAM2)
+                0x000000dc        0x4 LONG 0x2007c000 ADDR (.data_RAM2)
+                0x000000e0        0x4 LONG 0x0 SIZEOF (.data_RAM2)
+                0x000000e4                __data_section_table_end = .
+                0x000000e4                __bss_section_table = .
+                0x000000e4        0x4 LONG 0x10000000 ADDR (.bss)
+                0x000000e8        0x4 LONG 0x4 SIZEOF (.bss)
+                0x000000ec        0x4 LONG 0x2007c000 ADDR (.bss_RAM2)
+                0x000000f0        0x4 LONG 0x0 SIZEOF (.bss_RAM2)
+                0x000000f4                __bss_section_table_end = .
+                0x000000f4                __section_table_end = .
+ *(.after_vectors*)
+ .after_vectors
+                0x000000f4       0x78 ./src/cr_startup_lpc176x.o
+                0x000000f4                NMI_Handler
+                0x000000f6                HardFault_Handler
+                0x000000f8                MemManage_Handler
+                0x000000fa                BusFault_Handler
+                0x000000fc                UsageFault_Handler
+                0x000000fe                SVC_Handler
+                0x00000100                DebugMon_Handler
+                0x00000102                PendSV_Handler
+                0x00000104                SysTick_Handler
+                0x00000106                data_init
+                0x00000118                bss_init
+                0x00000128                ResetISR
+                0x00000168                TIMER2_IRQHandler
+                0x00000168                RIT_IRQHandler
+                0x00000168                I2C0_IRQHandler
+                0x00000168                USBActivity_IRQHandler
+                0x00000168                PWM1_IRQHandler
+                0x00000168                I2C1_IRQHandler
+                0x00000168                EINT2_IRQHandler
+                0x00000168                UART1_IRQHandler
+                0x00000168                EINT3_IRQHandler
+                0x00000168                CANActivity_IRQHandler
+                0x00000168                TIMER3_IRQHandler
+                0x00000168                UART0_IRQHandler
+                0x00000168                IntDefaultHandler
+                0x00000168                PLL0_IRQHandler
+                0x00000168                CAN_IRQHandler
+                0x00000168                PLL1_IRQHandler
+                0x00000168                SSP0_IRQHandler
+                0x00000168                I2S_IRQHandler
+                0x00000168                I2C2_IRQHandler
+                0x00000168                RTC_IRQHandler
+                0x00000168                TIMER0_IRQHandler
+                0x00000168                SPI_IRQHandler
+                0x00000168                EINT1_IRQHandler
+                0x00000168                TIMER1_IRQHandler
+                0x00000168                UART2_IRQHandler
+                0x00000168                ADC_IRQHandler
+                0x00000168                SSP1_IRQHandler
+                0x00000168                USB_IRQHandler
+                0x00000168                BOD_IRQHandler
+                0x00000168                WDT_IRQHandler
+                0x00000168                QEI_IRQHandler
+                0x00000168                EINT0_IRQHandler
+                0x00000168                DMA_IRQHandler
+                0x00000168                UART3_IRQHandler
+                0x00000168                MCPWM_IRQHandler
+                0x00000168                ENET_IRQHandler
+ *(.text*)
+ .text.main     0x0000016c       0x24 ./src/main.o
+                0x0000016c                main
+ .text.SystemInit
+                0x00000190       0xf0 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+                0x00000190                SystemInit
+ .text.initTimer
+                0x00000280       0x78 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+                0x00000280                initTimer
+ .text.__weak_main
+                0x000002f8        0x4 /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+                0x000002f8                __main
+                0x000002f8                __weak_main
+ *(.rodata .rodata.*)
+                0x000002fc                . = ALIGN (0x4)
+
+.glue_7         0x000002fc        0x0
+ .glue_7        0x00000000        0x0 linker stubs
+
+.glue_7t        0x000002fc        0x0
+ .glue_7t       0x00000000        0x0 linker stubs
+
+.vfp11_veneer   0x000002fc        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x000002fc        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.ARM.extab
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x000002fc                __exidx_start = .
+
+.ARM.exidx
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x000002fc                __exidx_end = .
+                0x000002fc                _etext = .
+
+.data_RAM2      0x2007c000        0x0 load address 0x000002fc
+ FILL mask 0xff
+ *(.data.$RAM2*)
+ *(.data.$RamAHB32*)
+                0x2007c000                . = ALIGN (0x4)
+
+.uninit_RESERVED
+ *(.bss.$RESERVED*)
+
+.data           0x10000000        0x0 load address 0x000002fc
+ FILL mask 0xff
+                0x10000000                _data = .
+ *(vtable)
+ *(.data*)
+                0x10000000                . = ALIGN (0x4)
+                0x10000000                _edata = .
+
+.bss_RAM2       0x2007c000        0x0
+ *(.bss.$RAM2*)
+ *(.bss.$RamAHB32*)
+                0x2007c000                . = ALIGN (0x4)
+
+.bss            0x10000000        0x4
+                0x10000000                _bss = .
+ *(.bss*)
+ .bss.i.2099    0x10000000        0x4 ./src/main.o
+ *(COMMON)
+                0x10000004                . = ALIGN (0x4)
+                0x10000004                _ebss = .
+                0x10000004                PROVIDE (end, .)
+                0x10000004                PROVIDE (_pvHeapStart, .)
+                0x10008000                PROVIDE (_vStackTop, (__top_RamLoc32 - 0x0))
+OUTPUT(Programmer.axf elf32-littlearm)
+
+.debug_abbrev   0x00000000      0x3e9
+ .debug_abbrev  0x00000000      0x10f ./src/cr_startup_lpc176x.o
+ .debug_abbrev  0x0000010f       0x93 ./src/main.o
+ .debug_abbrev  0x000001a2      0x11b /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_abbrev  0x000002bd      0x12c /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_info     0x00000000      0xe12
+ .debug_info    0x00000000      0x2e3 ./src/cr_startup_lpc176x.o
+ .debug_info    0x000002e3       0xe9 ./src/main.o
+ .debug_info    0x000003cc      0x53f /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_info    0x0000090b      0x507 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_line     0x00000000      0xdfc
+ .debug_line    0x00000000      0x3e4 ./src/cr_startup_lpc176x.o
+ .debug_line    0x000003e4      0x4a4 ./src/main.o
+ .debug_line    0x00000888      0x3e5 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_line    0x00000c6d      0x18f /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_macinfo  0x00000000    0x12027
+ .debug_macinfo
+                0x00000000     0x313f ./src/cr_startup_lpc176x.o
+ .debug_macinfo
+                0x0000313f     0x777f ./src/main.o
+ .debug_macinfo
+                0x0000a8be     0x7769 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+
+.debug_loc      0x00000000      0x204
+ .debug_loc     0x00000000      0x1b8 ./src/cr_startup_lpc176x.o
+ .debug_loc     0x000001b8       0x2c ./src/main.o
+ .debug_loc     0x000001e4       0x20 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+
+.debug_pubnames
+                0x00000000      0x1d8
+ .debug_pubnames
+                0x00000000      0x115 ./src/cr_startup_lpc176x.o
+ .debug_pubnames
+                0x00000115       0x28 ./src/main.o
+ .debug_pubnames
+                0x0000013d       0x4f /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_pubnames
+                0x0000018c       0x4c /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_pubtypes
+                0x00000000       0xf2
+ .debug_pubtypes
+                0x00000000       0x12 ./src/cr_startup_lpc176x.o
+ .debug_pubtypes
+                0x00000012       0x1e ./src/main.o
+ .debug_pubtypes
+                0x00000030       0x57 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_pubtypes
+                0x00000087       0x6b /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_aranges  0x00000000      0x100
+ .debug_aranges
+                0x00000000       0x80 ./src/cr_startup_lpc176x.o
+ .debug_aranges
+                0x00000080       0x20 ./src/main.o
+ .debug_aranges
+                0x000000a0       0x28 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_aranges
+                0x000000c8       0x38 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_ranges   0x00000000       0xc0
+ .debug_ranges  0x00000000       0x70 ./src/cr_startup_lpc176x.o
+ .debug_ranges  0x00000070       0x10 ./src/main.o
+ .debug_ranges  0x00000080       0x18 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_ranges  0x00000098       0x28 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+
+.debug_str      0x00000000      0x532
+ .debug_str     0x00000000      0x21c ./src/cr_startup_lpc176x.o
+                                0x244 (size before relaxing)
+ .debug_str     0x0000021c       0x29 ./src/main.o
+                                 0xf8 (size before relaxing)
+ .debug_str     0x00000245      0x242 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+                                0x2dc (size before relaxing)
+ .debug_str     0x00000487       0xab /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+                                0x2b0 (size before relaxing)
+
+.comment        0x00000000       0x2a
+ .comment       0x00000000       0x2a ./src/cr_startup_lpc176x.o
+                                 0x2b (size before relaxing)
+ .comment       0x00000000       0x2b ./src/main.o
+ .comment       0x00000000       0x2b /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .comment       0x00000000       0x2b /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .comment       0x00000000       0x2b /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+
+.ARM.attributes
+                0x00000000       0x31
+ .ARM.attributes
+                0x00000000       0x31 ./src/cr_startup_lpc176x.o
+ .ARM.attributes
+                0x00000031       0x31 ./src/main.o
+ .ARM.attributes
+                0x00000062       0x31 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .ARM.attributes
+                0x00000093       0x31 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
+ .ARM.attributes
+                0x000000c4       0x31 /usr/local/lpcxpresso_4.2.2_238/lpcxpresso/tools/bin/../lib/gcc/arm-none-eabi/4.5.1/../../../../arm-none-eabi/lib/thumb2/libcr_c.a(__weak__main.o)
+
+.debug_frame    0x00000000      0x1a4
+ .debug_frame   0x00000000       0xf0 ./src/cr_startup_lpc176x.o
+ .debug_frame   0x000000f0       0x2c ./src/main.o
+ .debug_frame   0x0000011c       0x38 /home/chiel/Documents/BachelorProject/LPCXpresso/CMSISv2.10_LPC17xx/Debug/libCMSISv2.10_LPC17xx.a(system_LPC17xx.o)
+ .debug_frame   0x00000154       0x50 /home/chiel/Documents/BachelorProject/LPCXpresso/Bootloaderlib/Release/libBootloaderlib.a(timer.o)
