@@ -47,7 +47,7 @@ void initCan( void ) {
 	                (0x1<<2) | // Release receive buffer
 	                (0x1<<3);  // Clear data overrun bit
 
-	LPC_CAN2->BTR = 0xdcc001; // Set the bit rate of the CAN peripheral to 100kbit/s
+	LPC_CAN2->BTR = 0xDCC001; // Set the bit rate of the CAN peripheral to 100kbit/s
 	                          // BRP   = 1
 	                          // SJW   = 3
 	                          // TESG1 = 12
@@ -55,15 +55,39 @@ void initCan( void ) {
 	                          // SAM   = 1
 
 	LPC_CAN2->MOD = 0; // Enable the CAN peripheral again
+
+	LPC_CANAF->AFMR |= (1<<1); // Set the acceptance filter in bypass mode
 }
 
 /**
  * Receive a message over the CAN peripheral.
  *
- * If no message was received
+ * @param[out] msg The message object to load the
+ *                 received data into.
+ * @return If a message was received MESSAGE_RECEIVED,
+ *         otherwise NO_MESSAGE_RECEIVED.
  */
 CanReceiveStatus canReceive( CanMessage *msg ) {
-	return NO_MESSAGE_RECEIVED;
+	if( (LPC_CAN2->SR & 1) == 0 ) // If we have not received a message return
+		return NO_MESSAGE_RECEIVED;
+
+	// Copy the message out of the register to the *msg object
+	msg->length  = (LPC_CAN2->RFS & (15<<16))>>16; // Get the length of the message
+	msg->id      = LPC_CAN2->RID & 4095;           // Get the ID of the message
+	uint32_t tmp = LPC_CAN2->RDA;
+	msg->data[0] = ( (tmp&(0xFF<<24))>>24 );       // Get the data sent in the message
+	msg->data[1] = ( (tmp&(0xFF<<16))>>16 );
+	msg->data[2] = ( (tmp&(0xFF<<8 ))>>8  );
+	msg->data[3] = ( (tmp&(0xFF<<0 ))>>0  );
+	tmp = LPC_CAN2->RDB;
+	msg->data[4] = ( (tmp&(0xFF<<24))>>24 );
+	msg->data[5] = ( (tmp&(0xFF<<16))>>16 );
+	msg->data[6] = ( (tmp&(0xFF<<8 ))>>8  );
+	msg->data[7] = ( (tmp&(0xFF<<0 ))>>0  );
+
+	LPC_CAN2->CMR = (1<<2); // Release the receive buffer
+
+	return MESSAGE_RECEIVED;
 }
 
 /**
