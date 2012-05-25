@@ -16,6 +16,7 @@
 #include "protocol.h"
 #include "can.h"
 #include "iap.h"
+#include "crc.h"
 
 DataBlock *block; /** The sector to program and the data we have received so far */
 uint8_t *index; /** The index in the data for the point until which we received data */
@@ -67,6 +68,7 @@ static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
  */
 void initProtocol( DataBlock *blockIn ) {
 	initCan();
+	initCRC();
 
 	block  = blockIn;
 }
@@ -127,8 +129,14 @@ ProtocolState check( void ) {
 		if( !selected )
 			return NO_ACTION;
 
-		// TODO Check CRC
-		if( !0 ) { // CRC failed
+		uint32_t generatedCRC = generateCRC( &block->data[0], 4096 );
+		uint32_t suppliedCRC = 0;
+		uint8_t i;
+		for( i=0; i<4; i++ ) {
+			suppliedCRC += msg.data[i] << ( 8*i );
+		}
+
+		if( generatedCRC != suppliedCRC ) { // CRC failed
 			sendDataError(0,0);
 			return NO_ACTION;
 		}
