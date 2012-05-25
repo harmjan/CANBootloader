@@ -24,6 +24,22 @@ void initFlash( void ) {
 }
 
 /**
+ * Determines the start address of a 4kB block in flash.
+ * @param[in] sector   The sector.
+ * @param[out] address The start address of in flash.
+ */
+static void getSectorDetails(uint8_t sector, uint8_t *address) {
+
+	if ( sector < 16 ) {
+		getSectorAddress(sector, address);
+	}
+	else {
+		// TODO: implement this
+	}
+
+}
+
+/**
  * Copy 4kB from RAM to flash.
  *
  * @param[in] ramPointer The start of the ram to copy from.
@@ -31,6 +47,12 @@ void initFlash( void ) {
  * @return Status of flashing procedure.
  */
 flashStatus flashNode( DataBlock *block ) {
+
+	/**
+	 * TODO:
+	 * - when should sector be prepared?
+	 * - blank only when first part of sector
+	 */
 
 	/*
 	 * Prepare flash.
