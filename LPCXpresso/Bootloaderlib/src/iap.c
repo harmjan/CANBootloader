@@ -172,3 +172,10 @@ void getDeviceSerial( uint8_t *serial ) {
 		serial++;
 	}
 }
+
+// TODO: function description
+static void getSectorAddress( uint8_t sector, uint8_t *address ) {
+
+	*address = sector_start_adress[sector];
+
+}
