@@ -28,13 +28,49 @@ void initFlash( void ) {
  * @param[in] sector   The sector.
  * @param[out] address The start address of in flash.
  */
-static void getSectorDetails(uint8_t sector, uint8_t *address) {
-
+void getSectorDetails(uint8_t sector, uint32_t *address) {
+/*
+	// TODO: static function
 	if ( sector < 16 ) {
 		getSectorAddress(sector, address);
 	}
 	else {
-		// TODO: implement this
+		uint8_t offset = sector % 8;
+		sector = ((sector - 16) / 8) + 16;
+		getSectorAddress(sector, address);
+		address += 4096 * offset;
+	}
+*/
+
+	//uint32_t *add = getSectorAddress(sector);
+}
+
+/**
+ * Returns the physical sector number from the 'virtual' sector number.
+ * @param[in] virtualSector The virtual sector number, range [0..128].
+ * @return                  The physical sector number, range [0..29].
+ */
+static uint8_t getPhysicalSectorNumber(uint8_t virtualSector) {
+
+	if ( virtualSector >= 16 ) {
+		return ((virtualSector - 16) / 8) + 16;
+	}
+	return virtualSector;
+
+}
+
+/**
+ * Returns the offset of the mapping of a virtual to a physical sector.
+ * @param[in] virtualSector The virtual sector.
+ * @return        			The offset, range [0..7].
+ */
+static uint8_t getPhysicalSectorOffset(uint8_t virtualSector) {
+
+	if ( virtualSector < 16 ) {
+		return 0;
+	}
+	else {
+		return virtualSector % 8;
 	}
 
 }
@@ -48,16 +84,13 @@ static void getSectorDetails(uint8_t sector, uint8_t *address) {
  */
 flashStatus flashNode( DataBlock *block ) {
 
-	/**
-	 * TODO:
-	 * - when should sector be prepared?
-	 * - blank only when first part of sector
-	 */
+	uint8_t phySector = getPhysicalSectorNumber( block->sector );
+	uint8_t offset = getPhysicalSectorOffset( block->sector );
 
 	/*
 	 * Prepare flash.
 	 */
-	uint8_t prepare = prepareFlash( block->sector );
+	uint8_t prepare = prepareFlash( phySector );
 	if ( prepare == INVALID_SECTOR) {
 		return INVALID_POINTER;
 	}
@@ -65,32 +98,39 @@ flashStatus flashNode( DataBlock *block ) {
 		return COMPARE_FAILURE;
 	}
 
-	/*
-	 * Blank flash.
+	/**
+	 * Blank sector only if it is the first 4kB chunck to be flashed on that sector.
 	 */
-	uint8_t blank = blankFlash( block->sector );
-	if ( blank == INVALID_SECTOR ) {
-		return INVALID_POINTER;
-	}
-	else if ( prepare == COMPARE_ERROR ) {
-		return COMPARE_FAILURE;
-	}
+	if ( offset == 0 ) {
 
-	/*
-	 * Check if flash sector is blanked.
-	 */
-	uint8_t checkIfBlank = checkBlank( block->sector );
-	if ( checkIfBlank == COMPARE_ERROR ) {
-		return COMPARE_FAILURE;
-	}
-	else if ( checkIfBlank == INVALID_SECTOR ) {
-		return INVALID_POINTER;
+		/*
+		 * Blank flash.
+		 */
+		uint8_t blank = blankFlash( phySector );
+		if ( blank == INVALID_SECTOR ) {
+			return INVALID_POINTER;
+		}
+		else if ( prepare == COMPARE_ERROR ) {
+			return COMPARE_FAILURE;
+		}
+
+		/*
+		 * Check if flash sector is blanked.
+		 */
+		uint8_t checkIfBlank = checkBlank( phySector );
+		if ( checkIfBlank == COMPARE_ERROR ) {
+			return COMPARE_FAILURE;
+		}
+		else if ( checkIfBlank == INVALID_SECTOR ) {
+			return INVALID_POINTER;
+		}
+
 	}
 
 	/*
 	 * Prepare flash.
 	 */
-	prepare = prepareFlash( block->sector );
+	prepare = prepareFlash( phySector );
 	if ( prepare == INVALID_SECTOR) {
 		return INVALID_POINTER;
 	}
@@ -101,7 +141,7 @@ flashStatus flashNode( DataBlock *block ) {
 	/*
 	 * Write 4kB to flash.
 	 */
-	uint8_t write = writeFlash( block->data, block->sector );
+	uint8_t write = writeFlash( block->data, phySector, offset * 4096 );
 	if ( write == INVALID_SECTOR ) {
 		return INVALID_POINTER;
 	}
@@ -112,7 +152,7 @@ flashStatus flashNode( DataBlock *block ) {
 	/*
 	 * Compare flashed 4kB.
 	 */
-	uint8_t compareData = compare( block->data, block->sector );
+	uint8_t compareData = compare( block->data, phySector, offset * 4096 );
 	if ( compareData == COMPARE_ERROR ) {
 		return COMPARE_FAILURE;
 	}
@@ -121,4 +161,5 @@ flashStatus flashNode( DataBlock *block ) {
 	}
 
 	return FLASH_SUCCESS;
+
 }
