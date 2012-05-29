@@ -115,5 +115,5 @@ void canSend( CanMessage *msg ) {
 	                (1<<5);  // Use transmit buffer 1
 
 	// Wait for the message to be transmitted
-	while( (LPC_CAN2->SR & (1<<5)) == 0);
+	while( (LPC_CAN2->SR & (1<<2)) == 0 && (LPC_CAN2->SR & (1<<3)) == 0);
 }

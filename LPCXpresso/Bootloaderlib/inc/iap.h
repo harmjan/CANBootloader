@@ -22,6 +22,7 @@
 uint8_t prepareFlash( uint8_t sector );
 uint8_t blankFlash( uint8_t sector );
 uint8_t checkBlank( uint8_t sector );
-uint8_t compare( uint8_t *data, uint8_t sector );
-uint8_t writeFlash( uint8_t *data, uint8_t sector );
+uint8_t compare( uint8_t *data, uint8_t sector, uint16_t offset );
+uint8_t writeFlash( uint8_t *data, uint8_t sector, uint16_t offset );
 void getDeviceSerial( uint8_t *serial );
+static uint32_t * getSectorAddress( uint8_t virtualSector );

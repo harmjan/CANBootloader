@@ -25,6 +25,7 @@ IAP iapFunction=(IAP)IAP_LOCATION;
  */
 uint8_t prepareFlash( uint8_t sector ) {
 
+
 	uint8_t prepare = iap_write_prepare( sector, sector );
 
 	if ( prepare == BUSY ) {
@@ -78,14 +79,15 @@ uint8_t checkBlank( uint8_t sector ) {
 /**
  * Compare a 4kB block of RAM with a block in flash.
  *
- * @param data Pointer to the start of the block in RAM.
+ * @param data   Pointer to the start of the block in RAM.
  * @param sector The sector where the block in flash starts.
+ * @param offset The offset from sector start address and comparing start address.
  * @return If the two blocks are the same. If an error was encountered
  *         false is returned.
  */
-uint8_t compare( uint8_t *data, uint8_t sector ) {
+uint8_t compare( uint8_t *data, uint8_t sector, uint16_t offset ) {
 
-	uint8_t compare = iap_compare( sector_start_adress[sector], data, 4*1024 );
+	uint8_t compare = iap_compare( (const char*)(getSectorAddress(sector) + offset), (const char*)data, 4096 );
 
 	switch ( compare ) {
 
@@ -112,12 +114,17 @@ uint8_t compare( uint8_t *data, uint8_t sector ) {
  * Make sure the flash you are going to write to is prepared and
  * cleared if necessary.
  *
- * @param[in] data A pointer to the start of the data in the RAM.
- * @param[in] sector The sector where the write starts.
+ * @param[in] data   A pointer to the start of the data in the RAM.
+ * @param[in] sector The sector to write in.
+ * @param[in] offset The offset from sector start address and writing start address.
  */
-uint8_t writeFlash( uint8_t *data, uint8_t sector ) {
+uint8_t writeFlash( uint8_t *data, uint8_t sector, uint16_t offset ) {
 
-	uint8_t write = iap_write( data, sector_start_adress[sector], 4*1024 );
+	uint32_t *start = getSectorAddress(sector);
+	start = (char*) start;
+	start += 255; // TODO: some bug here
+	start++;
+	uint8_t write = iap_write( (const char*)data, (const char*)(getSectorAddress(sector) + offset), 4096 );
 
 	switch ( write ) {
 
@@ -172,3 +179,16 @@ void getDeviceSerial( uint8_t *serial ) {
 		serial++;
 	}
 }
+
+/**
+ * Returns the start address of a physical sector.
+ * @param[in] sector The sector.
+ * @return         	 The start address of the sector.
+ */
+static uint32_t * getSectorAddress( uint8_t sector ) {
+
+	uint32_t *ptr = (uint32_t *) sector_start_adress[sector];
+	return (uint32_t *) sector_start_adress[sector];
+
+}
+
