@@ -85,9 +85,9 @@ uint8_t checkBlank( uint8_t sector ) {
  * @return If the two blocks are the same. If an error was encountered
  *         false is returned.
  */
-uint8_t compare( uint8_t *data, uint8_t sector, uint16_t offset ) {
+uint8_t compareFlash( uint8_t *data, uint8_t sector, uint16_t offset ) {
 
-	uint8_t compare = iap_compare( (const char*)(getSectorAddress(sector) + offset), (const char*)data, 4096 );
+	uint8_t compare = iap_compare( (const char*)data, (const char*)(getSectorAddress(sector) + (offset/4)), 4096 );
 
 	switch ( compare ) {
 
@@ -120,11 +120,7 @@ uint8_t compare( uint8_t *data, uint8_t sector, uint16_t offset ) {
  */
 uint8_t writeFlash( uint8_t *data, uint8_t sector, uint16_t offset ) {
 
-	uint32_t *start = getSectorAddress(sector);
-	start = (char*) start;
-	start += 255; // TODO: some bug here
-	start++;
-	uint8_t write = iap_write( (const char*)data, (const char*)(getSectorAddress(sector) + offset), 4096 );
+	uint8_t write = iap_write( (const char*)data, (const char*)(getSectorAddress(sector) + (offset/4)), 4096 );
 
 	switch ( write ) {
 
@@ -187,7 +183,6 @@ void getDeviceSerial( uint8_t *serial ) {
  */
 static uint32_t * getSectorAddress( uint8_t sector ) {
 
-	uint32_t *ptr = (uint32_t *) sector_start_adress[sector];
 	return (uint32_t *) sector_start_adress[sector];
 
 }
