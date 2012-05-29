@@ -24,28 +24,6 @@ void initFlash( void ) {
 }
 
 /**
- * Determines the start address of a 4kB block in flash.
- * @param[in] sector   The sector.
- * @param[out] address The start address of in flash.
- */
-void getSectorDetails(uint8_t sector, uint32_t *address) {
-/*
-	// TODO: static function
-	if ( sector < 16 ) {
-		getSectorAddress(sector, address);
-	}
-	else {
-		uint8_t offset = sector % 8;
-		sector = ((sector - 16) / 8) + 16;
-		getSectorAddress(sector, address);
-		address += 4096 * offset;
-	}
-*/
-
-	//uint32_t *add = getSectorAddress(sector);
-}
-
-/**
  * Returns the physical sector number from the 'virtual' sector number.
  * @param[in] virtualSector The virtual sector number, range [0..128].
  * @return                  The physical sector number, range [0..29].
@@ -152,7 +130,7 @@ flashStatus flashNode( DataBlock *block ) {
 	/*
 	 * Compare flashed 4kB.
 	 */
-	uint8_t compareData = compare( block->data, phySector, offset * 4096 );
+	uint8_t compareData = compareFlash( block->data, phySector, offset * 4096 );
 	if ( compareData == COMPARE_ERROR ) {
 		return COMPARE_FAILURE;
 	}
