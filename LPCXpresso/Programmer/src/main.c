@@ -8,24 +8,34 @@
  *
  * ===============================================================================================================
  *
- * The main entry point for the CAN Bootloader. This bootloader
- * should work for the LPC1769.
+ * The main entry point for the CAN Bootloader programmer.
+ * 1 node in the network should run this software to update
+ * all other nodes in the network.
  *
  * @author Chiel de Roest <M.A.deRoest@student.tudelft.nl> and Harmjan Treep <harmjan.treep@gmail.com>
  */
 
-#ifdef __USE_CMSIS
 #include "LPC17xx.h"
-#endif
 
-#include <cr_section_macros.h>
-#include <NXP/crp.h>
+#include "protocol.h"
+#include "timer.h"
 
-__CRP const unsigned int CRP_WORD = CRP_NO_CRP ;
+/**
+ * The list of nodes
+ */
+nodelist list;
 
-int main(void) {
-	
+int main( void ) {
+	SystemCoreClockUpdate();
+
+	initProtocol();
+
+	protocolDiscover( &list );
+
+	protocolProgram( &list );
+
+	protocolReset();
 
 	while(1);
-	return 0 ;
+	return 0;
 }
