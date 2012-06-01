@@ -26,11 +26,10 @@
 
 #include <cr_section_macros.h>
 
-/** The place to store the received data and to read from when flash the node. */
-static DataBlock block;
+DataBlock block;
 
-/** The boolean to save if this node is currently in bootloading mode. */
-static uint8_t bootloaderMode = 0;
+ProtocolState state;
+uint8_t bootloaderMode = 0; /** If the node is currently in bootloader mode */
 
 /**
  * The main function of the application, the bootloader starts here.
@@ -50,20 +49,45 @@ int main(void) {
 	// Set the timer for 1 second. If we have not
 	// received the signal to go into bootloader
 	// mode after 1 second we start the user program.
-	timerSet( 10000 );
+	timerSet( 1000 );
 
 	while( !timerPassed() || bootloaderMode ) {
-		ProtocolState state = check();
+		state = check();
 
 		switch( state ) {
 		case DATA_READY:
-			dataStatus( FLASH_SUCCESS ); // TODO Really flash the node
 			// TODO Check if it is the bootloader sector, if it is do not flash! Give error!
-			/*if( block.sector == 0 ) {
+			if ( block.sector >= 120 ) {
 				dataStatus( BOOTLOADER_SECTOR );
-			} else {
-				dataStatus( flashNode( &theBlock ) );
-			}*/
+			}
+			else if ( block.sector == 0 ) {
+
+				// Save user application's ResetISR pointer and stack pointer.
+				uint32_t startPtrUA = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
+				uint32_t stackPtrUA = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
+				savePointersStorage( startPtrUA, stackPtrUA );
+
+				// Flash first sector with bootloader's ResetISR pointer and stack pointer,
+				// so bootloader is always called first.
+				uint32_t *startPtrBL = (uint32_t *) 0x04;
+				uint32_t *stackPtrBL = (uint32_t *) 0x00;
+				block.data[0] =   *startPtrBL         & 0xff;
+				block.data[1] = ( *startPtrBL >> 8 )  & 0xff;
+				block.data[2] = ( *startPtrBL >> 16 ) & 0xff;
+				block.data[3] = ( *startPtrBL >> 24 ) & 0xff;
+				block.data[4] =   *stackPtrBL 		  & 0xff;
+				block.data[5] = ( *stackPtrBL >> 8 )  & 0xff;
+				block.data[6] = ( *stackPtrBL >> 16 ) & 0xff;
+				block.data[7] = ( *stackPtrBL >> 24 ) & 0xff;
+
+				// Flash the node.
+				dataStatus( flashNode( &block ) );
+
+			}
+			else {
+				dataStatus( flashNode( &block ) );
+			}
+
 			break;
 
 		case RESET_NODE:
@@ -73,13 +97,23 @@ int main(void) {
 		case BOOTLOADER:
 			bootloaderMode = 1;
 			break;
+
+		case NO_ACTION:
+			break;
+
 		}
 	}
+
+
+	uint32_t *stackptr2 = 0x00;
+	uint32_t *pointernaarmafding = 0x10008000;
 
 	// Enable interrupts again for the user application
 	__enable_irq();
 
 	// TODO Jump to user application
+	uint32_t startPtrUA = getStartPointerStorage();
+	uint32_t stackPtrUA = getStackPointerStorage();
 
 	while(1);
 	return 0 ;

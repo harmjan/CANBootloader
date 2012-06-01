@@ -127,7 +127,7 @@ void CANActivity_IRQHandler(void) ALIAS(IntDefaultHandler);
 //
 //*****************************************************************************
 #if defined (__REDLIB__)
-extern void __main(void);
+__attribute__ ((section(".canbootloader"))) extern void __main(void);
 #endif
 extern int main(void);
 //*****************************************************************************
