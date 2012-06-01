@@ -26,10 +26,11 @@
 
 #include <cr_section_macros.h>
 
-DataBlock block;
+/** The place to store the received data and to read from when flash the node. */
+static DataBlock block;
 
-ProtocolState state;
-uint8_t bootloaderMode = 0; /** If the node is currently in bootloader mode */
+/** The boolean to save if this node is currently in bootloading mode. */
+static uint8_t bootloaderMode = 0;
 
 /**
  * The main function of the application, the bootloader starts here.
@@ -49,20 +50,20 @@ int main(void) {
 	// Set the timer for 1 second. If we have not
 	// received the signal to go into bootloader
 	// mode after 1 second we start the user program.
-	timerSet( 1000 );
+	timerSet( 10000 );
 
 	while( !timerPassed() || bootloaderMode ) {
-		state = check();
+		ProtocolState state = check();
 
 		switch( state ) {
 		case DATA_READY:
+			dataStatus( FLASH_SUCCESS ); // TODO Really flash the node
 			// TODO Check if it is the bootloader sector, if it is do not flash! Give error!
-			if( block.sector == 0 ) {
+			/*if( block.sector == 0 ) {
 				dataStatus( BOOTLOADER_SECTOR );
 			} else {
-				dataStatus( flashNode( &block ) );
-			}
-
+				dataStatus( flashNode( &theBlock ) );
+			}*/
 			break;
 
 		case RESET_NODE:
