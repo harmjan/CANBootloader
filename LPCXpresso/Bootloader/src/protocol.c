@@ -16,15 +16,18 @@
 #include "protocol.h"
 #include "can.h"
 #include "iap.h"
+#include "crc.h"
 
-DataBlock *block; /** The sector to program and the data we have received so far */
-uint8_t *index; /** The index in the data for the point until which we received data */
+/** The sector to program and the data we have received so far */
+static DataBlock *block;
+/** The index in the data for the point until which we received data */
+static uint8_t *index;
 
 /** If this node has been selected by the programmer for reprogramming */
-uint8_t selected = 0;
+static uint8_t selected = 0;
 
 /** The message object used as temporary object */
-CanMessage msg;
+static CanMessage msg;
 
 /**
  * Set a random ID of 4 bytes in a uint8_t array.
@@ -50,7 +53,7 @@ static void setRandomID( uint8_t *array ) {
  * @param flashSuccess 0 if there was a problem while flashing the node and 1 if it went correctly.
  */
 static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
-	msg.id      = 0x106;
+	msg.id      = 0x107;
 	msg.length  = 5;
 	setRandomID( msg.data );
 
@@ -67,6 +70,7 @@ static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
  */
 void initProtocol( DataBlock *blockIn ) {
 	initCan();
+	initCRC();
 
 	block  = blockIn;
 }
@@ -91,17 +95,17 @@ ProtocolState check( void ) {
 		canSend( &msg );
 		return NO_ACTION; // The bootloader should take no further action
 
-	case 0x102: // Select this node for programming
+	case 0x103: // Select this node for programming
 		// TODO Fix CAN ID clash
 		selected = 1;
 		return NO_ACTION; // The bootloader should take no further action
 
-	case 0x103: // Address of data to come
-		block->sector = msg.data[0] << 8 | msg.data[1];
-		index = &block->data[0];
+	case 0x104: // Address of data to come
+		block->sector = msg.data[0];
+		index = (block->data);
 		return NO_ACTION; // The bootloader should take no further action
 
-	case 0x104: // New data
+	case 0x105: // New data
 		// If this node is not selected to receive data ignore the CAN message
 		if( !selected )
 			return NO_ACTION;
@@ -109,7 +113,7 @@ ProtocolState check( void ) {
 		// If the index is further then the edge of the data region
 		// this node must have missed a CRC message or something. Go
 		// into error mode.
-		if( index > &block->data[4096] ) {
+		if( index > &(block->data[4096]) ) {
 			while(1); // TODO Better error
 		}
 
@@ -117,25 +121,36 @@ ProtocolState check( void ) {
 			uint8_t i;
 			for( i=0; i<8; i++ ) {
 				*index = msg.data[i];
-				index++;
+				++index;
 			}
 		}
 		return NO_ACTION; // The bootloader should take no further action
 
-	case 0x105: // CRC
+	case 0x106: // CRC of the received data
 		// If this node is not selected to receive data ignore the CAN message
 		if( !selected )
 			return NO_ACTION;
 
-		// TODO Check CRC
-		if( !0 ) { // CRC failed
+		// Check if we have received enough messages
+		if( index != &(block->data[4096]) ) {
 			sendDataError(0,0);
 			return NO_ACTION;
 		}
 
-		return DATA_READY;
+		// TODO Faster CRC algorithm
+		uint32_t crc = generateCRC( block->data, 4096 );
+		// Check if the CRC matches the CRC of the programmer
+		if( msg.data[0] == ( (crc&(0xFF<<24))>>24 ) &&
+			msg.data[1] == ( (crc&(0xFF<<16))>>16 ) &&
+			msg.data[2] == ( (crc&(0xFF<<8 ))>>8  ) &&
+			msg.data[3] == ( (crc&(0xFF<<0 ))>>0  ) ) {
+			return DATA_READY;
+		} else {
+			sendDataError(0,0);
+			return NO_ACTION;
+		}
 
-	case 0x107: // Reset the node
+	case 0x108: // Reset the node
 		return RESET_NODE;
 
 	default: // If we do not know the ID do not do anything with it
