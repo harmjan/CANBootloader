@@ -75,15 +75,15 @@ CanReceiveStatus canReceive( CanMessage *msg ) {
 	msg->length  = (LPC_CAN2->RFS & (15<<16))>>16; // Get the length of the message
 	msg->id      = LPC_CAN2->RID & 4095;           // Get the ID of the message
 	uint32_t tmp = LPC_CAN2->RDA;
-	msg->data[0] = ( (tmp&(0xFF<<24))>>24 );       // Get the data sent in the message
-	msg->data[1] = ( (tmp&(0xFF<<16))>>16 );
-	msg->data[2] = ( (tmp&(0xFF<<8 ))>>8  );
-	msg->data[3] = ( (tmp&(0xFF<<0 ))>>0  );
+	msg->data[0] = ( (tmp&(0xFF<<0 ))>>0 );       // Get the data sent in the message
+	msg->data[1] = ( (tmp&(0xFF<<8 ))>>8 );
+	msg->data[2] = ( (tmp&(0xFF<<16))>>16);
+	msg->data[3] = ( (tmp&(0xFF<<24))>>24);
 	tmp = LPC_CAN2->RDB;
-	msg->data[4] = ( (tmp&(0xFF<<24))>>24 );
-	msg->data[5] = ( (tmp&(0xFF<<16))>>16 );
-	msg->data[6] = ( (tmp&(0xFF<<8 ))>>8  );
-	msg->data[7] = ( (tmp&(0xFF<<0 ))>>0  );
+	msg->data[4] = ( (tmp&(0xFF<<0 ))>>0 );
+	msg->data[5] = ( (tmp&(0xFF<<8 ))>>8 );
+	msg->data[6] = ( (tmp&(0xFF<<16))>>16);
+	msg->data[7] = ( (tmp&(0xFF<<24))>>24);
 
 	LPC_CAN2->CMR = (1<<2); // Release the receive buffer
 
@@ -95,20 +95,22 @@ CanReceiveStatus canReceive( CanMessage *msg ) {
  * wait until we are sure the message was sent.
  *
  * Only buffer 1 is used in this implementation.
+ *
+ * @param[in] msg The message to send over the CAN bus.
  */
 void canSend( CanMessage *msg ) {
 	// Copy the message date from the message to the registers
 	LPC_CAN2->TFI1 &= ~(0xF<<16);          // Clear the length of the message to send
 	LPC_CAN2->TFI1 |= (msg->length<<16);   // Set the length of the message to send
 	LPC_CAN2->TID1  = (msg->id<<0);        // Set the ID of the message to be transmitted
-	LPC_CAN2->TDA1  = (msg->data[3]<<24) | // Set the data of the message to be transmitted
-	                  (msg->data[2]<<16) |
+	LPC_CAN2->TDA1  = (msg->data[0]<<0 ) | // Set the data of the message to be transmitted
 	                  (msg->data[1]<<8 ) |
-	                  (msg->data[0]<<0 );
-	LPC_CAN2->TDB1  = (msg->data[7]<<24) |
-	                  (msg->data[6]<<16) |
+	                  (msg->data[2]<<16) |
+	                  (msg->data[3]<<24);
+	LPC_CAN2->TDB1  = (msg->data[4]<<0 ) |
 	                  (msg->data[5]<<8 ) |
-	                  (msg->data[4]<<0 );
+	                  (msg->data[6]<<16) |
+	                  (msg->data[7]<<24);
 
 	// Request for the processor to send the message
 	LPC_CAN2->CMR = (1<<0) | // This is a transmission request
