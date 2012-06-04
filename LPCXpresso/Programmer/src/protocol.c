@@ -153,8 +153,10 @@ void protocolDiscover( nodelist *list ) {
  * Program the nodes in the network.
  *
  * @param[in] list The list of nodes to program.
+ * @param[in] start The start of the program to be flashed
+ * @param[in] end The end of the program to be flashed
  */
-void protocolProgram( nodelist *list ) {
+void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end ) {
 	// Programming 0 nodes is really fast!
 	if( list->numNodes == 0 )
 		return;
@@ -176,16 +178,23 @@ void protocolProgram( nodelist *list ) {
 	}
 
 	// Make a datablock for sector 15 filled with 0xAA
-	{
+	uint8_t *index = start;
+	while( index < end ){
+		block.sector = (index-start) / 4096;
+
 		uint16_t i;
 		for( i=0; i<4096; i++ ) {
-			theBlock.data[i] = 0xAA;
+			if( index < end ) {
+				block.data[i] = *index;
+				index++;
+			} else {
+				block.data[i] = 0x00;
+			}
 		}
-	}
-	theBlock.sector = 15;
 
-	// Write a dataBlock to the selected nodes
-	writeBlock( list, &theBlock );
+		// Write a dataBlock to the selected nodes
+		writeBlock( list, &block );
+	}
 }
 
 /**

@@ -30,7 +30,7 @@ typedef struct {
 
 void initProtocol( void );
 void protocolDiscover( nodelist *list );
-void protocolProgram( nodelist *list );
+void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end );
 void protocolReset( void );
 
 #endif
