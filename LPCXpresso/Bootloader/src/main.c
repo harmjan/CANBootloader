@@ -56,7 +56,8 @@ int main(void) {
 
 		switch( state ) {
 		case DATA_READY:
-			// TODO Check if it is the bootloader sector, if it is do not flash! Give error!
+
+			// If a program is being written into the bootloader code, give error.
 			if ( block.sector >= 120 ) {
 				dataStatus( BOOTLOADER_SECTOR );
 			}
@@ -104,16 +105,21 @@ int main(void) {
 		}
 	}
 
-
-	uint32_t *stackptr2 = 0x00;
-	uint32_t *pointernaarmafding = 0x10008000;
-
 	// Enable interrupts again for the user application
 	__enable_irq();
 
-	// TODO Jump to user application
 	uint32_t startPtrUA = getStartPointerStorage();
 	uint32_t stackPtrUA = getStackPointerStorage();
+
+	// Set stack pointer to the start of the user application
+	__set_MSP( stackPtrUA );
+
+	// Force Thumb mode by setting the lowest bit
+	startPtrUA |= 0x01;
+
+	// Call the user application's ResetISR routine
+	void (*startUA)(void) = (void *)startPtrUA;
+	(*startUA)();
 
 	while(1);
 	return 0 ;
