@@ -130,10 +130,10 @@ void protocolDiscover( nodelist *list ) {
 	while( !timerPassed() ) {
 		if( canReceive( &msg ) == MESSAGE_RECEIVED && msg.id == 0x102 ) {
 			// Get the ID of the node that is registering
-			uint32_t id = (msg.data[3]<<24) |
-			              (msg.data[2]<<16) |
-			              (msg.data[1]<<8 ) |
-			              (msg.data[0]<<0 );
+			uint32_t id = (msg.data[0]<<24) |
+			              (msg.data[1]<<16) |
+			              (msg.data[2]<<8 ) |
+			              (msg.data[3]<<0 );
 
 			// And save the ID
 			list->ids[list->numNodes] = id;
