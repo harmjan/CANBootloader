@@ -20,13 +20,11 @@
 #include "crc.h"
 #include "timer.h"
 
-/**
- * The temporary message object
- */
-CanMessage msg;
+/** The temporary message object */
+static CanMessage msg;
 
-// TODO Remove theBlock
-DataBlock theBlock;
+/** The temporary block object */
+static DataBlock block;
 
 /**
  * Write 4kB of data to the nodes.
