@@ -47,12 +47,11 @@ static void setRandomID( uint8_t *array ) {
 }
 
 /**
- * Send an error to the programmer that the flashing or the CRC
- * of a block of data went wrong.
+ * Send to the programmer the result of the CRC and the flashing of a block of data.
  * @param crcSuccess 0 if the CRC was wrong and 1 of the CRC was correct.
  * @param flashSuccess 0 if there was a problem while flashing the node and 1 if it went correctly.
  */
-static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
+static void sendDataResult( uint8_t crcSuccess, uint8_t flashSuccess ) {
 	msg.id      = 0x107;
 	msg.length  = 5;
 	setRandomID( msg.data );
@@ -133,7 +132,7 @@ ProtocolState check( void ) {
 
 		// Check if we have received enough messages
 		if( index != &(block->data[4096]) ) {
-			sendDataError(0,0);
+			sendDataResult(0,0);
 			return NO_ACTION;
 		}
 
@@ -146,7 +145,7 @@ ProtocolState check( void ) {
 			msg.data[3] == ( (crc&(0xFF<<0 ))>>0  ) ) {
 			return DATA_READY;
 		} else {
-			sendDataError(0,0);
+			sendDataResult(0,0);
 			return NO_ACTION;
 		}
 
@@ -165,13 +164,13 @@ ProtocolState check( void ) {
 void dataStatus( flashStatus state ) {
 	switch( state ) {
 	case FLASH_SUCCESS:
-		sendDataError(1,1);
+		sendDataResult(1,1);
 		break;
 
 	case COMPARE_FAILURE: // TODO More bits to give the programmer a better error.
 	case BOOTLOADER_SECTOR:
 	case INVALID_POINTER:
-		sendDataError(1,0);
+		sendDataResult(1,0);
 		break;
 	}
 }
