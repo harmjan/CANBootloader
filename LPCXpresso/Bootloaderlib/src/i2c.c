@@ -219,8 +219,13 @@ void initI2C( uint32_t deviceAddress ) {
 
 }
 
-void deInit( void ) {
+/**
+ * Deinitialize the I2C bus.
+ */
+void deInitI2C( void ) {
 	stopI2C();
+	LPC_I2C1->I2CONCLR = I2C_CON_ENC;
+	LPC_SC->PCONP &= ~( CLKPWR_PCONP_PCI2C1 | CLKPWR_PCONP_BITMASK ); /* Power down the I2C peripheral. */
 }
 
 /**
@@ -249,7 +254,6 @@ static uint8_t startI2C( void ) {
  */
 static void stopI2C( void ) {
 
-	LPC_I2C1->I2CONCLR = I2C_CON_ENC;
 	I2CMasterState = I2CSTATE_IDLE;
 
 }
