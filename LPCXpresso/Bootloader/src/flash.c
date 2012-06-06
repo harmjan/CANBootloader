@@ -24,6 +24,13 @@ void initFlash( void ) {
 }
 
 /**
+ * Deinitialize the flash memory
+ */
+void deInitFlash( void ) {
+
+}
+
+/**
  * Returns the physical sector number from the 'virtual' sector number.
  * @param[in] virtualSector The virtual sector number, range [0..128].
  * @return                  The physical sector number, range [0..29].

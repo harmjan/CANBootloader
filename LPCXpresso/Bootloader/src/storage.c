@@ -26,6 +26,13 @@ void initStorage( void ) {
 }
 
 /**
+ * Deinitialize the storage unit.
+ */
+void deInitStorage( void ) {
+	deInitEeprom();
+}
+
+/**
  * Save both the start and the stack pointer in the storage unit at the predefined address.
  * @param[in] startpointer The value of the startpointer.
  * @param[in] stackpointer The value of the stackpointer.
