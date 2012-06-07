@@ -35,6 +35,7 @@ uint8_t bootloaderMode = 0; /** If the node is currently in bootloader mode */
  * The main function of the application, the bootloader starts here.
  */
 int main(void) {
+
 	// Disable interrupts right from the start
 	__disable_irq();
 
@@ -64,22 +65,22 @@ int main(void) {
 			else if ( block.sector == 0 ) {
 
 				// Save user application's ResetISR pointer and stack pointer.
-				uint32_t startPtrUA = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
-				uint32_t stackPtrUA = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
-				savePointersStorage( startPtrUA, stackPtrUA );
+				uint32_t startPtrUAa = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
+				uint32_t stackPtrUAa = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
+				savePointersStorage( startPtrUAa, stackPtrUAa );
 
 				// Flash first sector with bootloader's ResetISR pointer and stack pointer,
 				// so bootloader is always called first.
 				uint32_t *startPtrBL = (uint32_t *) 0x04;
 				uint32_t *stackPtrBL = (uint32_t *) 0x00;
-				block.data[0] =   *startPtrBL         & 0xff;
-				block.data[1] = ( *startPtrBL >> 8 )  & 0xff;
-				block.data[2] = ( *startPtrBL >> 16 ) & 0xff;
-				block.data[3] = ( *startPtrBL >> 24 ) & 0xff;
-				block.data[4] =   *stackPtrBL 		  & 0xff;
-				block.data[5] = ( *stackPtrBL >> 8 )  & 0xff;
-				block.data[6] = ( *stackPtrBL >> 16 ) & 0xff;
-				block.data[7] = ( *stackPtrBL >> 24 ) & 0xff;
+				block.data[0] =   *stackPtrBL         & 0xff;
+				block.data[1] = ( *stackPtrBL >> 8 )  & 0xff;
+				block.data[2] = ( *stackPtrBL >> 16 ) & 0xff;
+				block.data[3] = ( *stackPtrBL >> 24 ) & 0xff;
+				block.data[4] =   *startPtrBL 		  & 0xff;
+				block.data[5] = ( *startPtrBL >> 8 )  & 0xff;
+				block.data[6] = ( *startPtrBL >> 16 ) & 0xff;
+				block.data[7] = ( *startPtrBL >> 24 ) & 0xff;
 
 				// Flash the node.
 				dataStatus( flashNode( &block ) );
@@ -92,7 +93,8 @@ int main(void) {
 			break;
 
 		case RESET_NODE:
-			reset();
+			bootloaderMode = 0;
+			//reset();
 			break;
 
 		case BOOTLOADER:
@@ -105,17 +107,23 @@ int main(void) {
 		}
 	}
 
-	// Enable interrupts again for the user application
-	__enable_irq();
-
 	uint32_t startPtrUA = getStartPointerStorage();
 	uint32_t stackPtrUA = getStackPointerStorage();
 
+	deinitTimer();
+	deInitStorage();
+	deInitFlash();
+	deinitCan();
+
 	// Set stack pointer to the start of the user application
 	__set_MSP( stackPtrUA );
+	__ISB();
 
 	// Force Thumb mode by setting the lowest bit
 	startPtrUA |= 0x01;
+
+	// Enable interrupts again for the user application
+	__enable_irq();
 
 	// Call the user application's ResetISR routine
 	void (*startUA)(void) = (void *)startPtrUA;
