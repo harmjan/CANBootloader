@@ -30,6 +30,7 @@ typedef enum {
 } CanReceiveStatus;
 
 void initCan( void );
+void deinitCan( void );
 CanReceiveStatus canReceive( CanMessage *msg );
 void canSend( CanMessage *msg );
 

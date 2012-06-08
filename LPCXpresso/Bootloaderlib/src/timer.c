@@ -21,12 +21,12 @@
 /**
  * Initialize the timer drivers we are going to use
  */
-void initTimer() {
+void initTimer( void ) {
 	LPC_SC->PCONP |= (1<<1); // Enable power to Timer0
 	LPC_SC->PCONP |= (1<<2); // Enable power to Timer1
 
-	// Setting 01 in bit 2:3 sets the clockdivider for Timer0
-	// to 1, setting 01 in bit 4:5 does this for Timer1
+	// Setting 0b01 in bit 2:3 sets the clockdivider for Timer0
+	// to 1, setting 0b01 in bit 4:5 does this for Timer1
 	LPC_SC->PCLKSEL0 &= ~(3<<2); // Clear the clock divider for Timer0
 	LPC_SC->PCLKSEL0 |=  (1<<2); // Set the clock divider for Timer0 to 1
 	LPC_SC->PCLKSEL0 &= ~(3<<4); // Clear the clock divider for Timer1
@@ -34,14 +34,22 @@ void initTimer() {
 
 	// Setup the match registers so that the timer stops
 	// when it matches
-	LPC_TIM0->MCR  = 0; // Reset the Match control register
+	LPC_TIM0->MCR  = 0;      // Reset the Match control register
 	LPC_TIM0->MCR |= (1<<2); // Stop the counter on match with MR0
-	LPC_TIM1->MCR  = 0; // Reset the Match control register
+	LPC_TIM1->MCR  = 0;      // Reset the Match control register
 	LPC_TIM1->MCR |= (1<<2); // Stop the counter on match with MR0
 
 	// Set the prescale counters
 	LPC_TIM0->PC = 0;
 	LPC_TIM1->PC = 0;
+}
+
+/**
+ * Deinitialize the timer peripheral.
+ */
+void deinitTimer( void ) {
+	LPC_SC->PCONP &= ~(1<<1); // Disable power to Timer0
+	LPC_SC->PCONP &= ~(1<<2); // Disable power to Timer1
 }
 
 /**
@@ -76,7 +84,7 @@ void timerSet( uint32_t milliSeconds ) {
  *
  * @return If the timer has passed yet.
  */
-uint8_t timerPassed() {
+uint8_t timerPassed( void ) {
 	// If Timer0 has reset than the set time has passed
 	return (LPC_TIM0->TCR & (1<<0)) == 0;
 }

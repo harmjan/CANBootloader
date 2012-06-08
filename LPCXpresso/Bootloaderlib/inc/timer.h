@@ -16,9 +16,10 @@
 #ifndef TIMER__H_
 #define TIMER__H_
 
-void initTimer();
+void initTimer( void );
+void deinitTimer( void );
 void timerDelay( uint16_t milliSeconds );
 void timerSet( uint16_t milliSeconds );
-uint8_t timerPassed();
+uint8_t timerPassed( void );
 
 #endif
