@@ -25,8 +25,8 @@ void initTimer( void ) {
 	LPC_SC->PCONP |= (1<<1); // Enable power to Timer0
 	LPC_SC->PCONP |= (1<<2); // Enable power to Timer1
 
-	// Setting 01 in bit 2:3 sets the clockdivider for Timer0
-	// to 1, setting 01 in bit 4:5 does this for Timer1
+	// Setting 0b01 in bit 2:3 sets the clockdivider for Timer0
+	// to 1, setting 0b01 in bit 4:5 does this for Timer1
 	LPC_SC->PCLKSEL0 &= ~(3<<2); // Clear the clock divider for Timer0
 	LPC_SC->PCLKSEL0 |=  (1<<2); // Set the clock divider for Timer0 to 1
 	LPC_SC->PCLKSEL0 &= ~(3<<4); // Clear the clock divider for Timer1
