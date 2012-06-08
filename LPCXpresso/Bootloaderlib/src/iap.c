@@ -15,6 +15,8 @@
 
 #include "iap.h"
 
+static uint32_t * getSectorAddress( uint8_t virtualSector );
+
 IAP iapFunction=(IAP)IAP_LOCATION;
 
 /**

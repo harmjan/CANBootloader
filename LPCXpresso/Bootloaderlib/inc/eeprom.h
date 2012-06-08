@@ -19,8 +19,8 @@
 #define EEPROM_H__
 
 void initEeprom( void );
-void deInitEeprom( void );
-void saveByte( uint16_t address, uint8_t byte );
-uint8_t getByte( uint16_t address );
+void deinitEeprom( void );
+void eepromSaveByte( uint16_t address, uint8_t byte );
+uint8_t eepromGetByte( uint16_t address );
 
 #endif

@@ -65,22 +65,29 @@ int main(void) {
 			else if ( block.sector == 0 ) {
 
 				// Save user application's ResetISR pointer and stack pointer.
-				uint32_t startPtrUAa = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
-				uint32_t stackPtrUAa = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
-				savePointersStorage( startPtrUAa, stackPtrUAa );
+				uint32_t startPtrUA = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
+				uint32_t stackPtrUA = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
+				savePointersStorage( startPtrUA, stackPtrUA );
 
 				// Flash first sector with bootloader's ResetISR pointer and stack pointer,
 				// so bootloader is always called first.
-				uint32_t *startPtrBL = (uint32_t *) 0x04;
-				uint32_t *stackPtrBL = (uint32_t *) 0x00;
-				block.data[0] =   *stackPtrBL         & 0xff;
-				block.data[1] = ( *stackPtrBL >> 8 )  & 0xff;
-				block.data[2] = ( *stackPtrBL >> 16 ) & 0xff;
-				block.data[3] = ( *stackPtrBL >> 24 ) & 0xff;
-				block.data[4] =   *startPtrBL 		  & 0xff;
-				block.data[5] = ( *startPtrBL >> 8 )  & 0xff;
-				block.data[6] = ( *startPtrBL >> 16 ) & 0xff;
-				block.data[7] = ( *startPtrBL >> 24 ) & 0xff;
+
+				uint8_t *stackptr = (uint8_t *)0x00;
+				uint8_t i;
+				int32_t checksum = 0;
+				for ( i = 0; i < 8; i++ ) {
+					block.data[i] = *(stackptr+i);
+				}
+
+				uint32_t *index = (uint32_t *)block.data;
+				for ( i = 0; i < 7; i++ ) {
+					checksum += *(index+i);
+				}
+				checksum = 0 - checksum;
+				block.data[28] =   checksum & 0xff;
+				block.data[29] = ( checksum >> 8 ) & 0xff;
+				block.data[30] = ( checksum >> 16 ) & 0xff;
+				block.data[31] = ( checksum >> 24 ) & 0xff;
 
 				// Flash the node.
 				dataStatus( flashNode( &block ) );
@@ -111,9 +118,9 @@ int main(void) {
 	uint32_t stackPtrUA = getStackPointerStorage();
 
 	deinitTimer();
-	deInitStorage();
-	deInitFlash();
-	deinitCan();
+	deinitStorage();
+	deinitFlash();
+	deinitProtocol();
 
 	// Set stack pointer to the start of the user application
 	__set_MSP( stackPtrUA );

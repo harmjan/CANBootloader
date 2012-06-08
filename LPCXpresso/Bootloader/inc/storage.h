@@ -19,7 +19,7 @@
 #define STORAGE_H__
 
 void initStorage( void );
-void deInitStorage( void );
+void deinitStorage( void );
 void savePointersStorage( uint32_t startpointer, uint32_t stackpointer );
 uint32_t getStartPointerStorage( void );
 uint32_t getStackPointerStorage( void );

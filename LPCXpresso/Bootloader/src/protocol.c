@@ -89,6 +89,13 @@ void initProtocol( DataBlock *blockIn ) {
 }
 
 /**
+ * Detinitialize the CAN peripheral.
+ */
+void deinitProtocol( void ) {
+	deinitCan();
+}
+
+/**
  * Check the state of the protocol and respond if necessary.
  * @return The action the bootloader needs to perform.
  */
