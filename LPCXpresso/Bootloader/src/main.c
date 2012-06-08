@@ -118,8 +118,8 @@ int main(void) {
 	uint32_t stackPtrUA = getStackPointerStorage();
 
 	deinitTimer();
-	deInitStorage();
-	deInitFlash();
+	deinitStorage();
+	deinitFlash();
 	deinitCan();
 
 	// Set stack pointer to the start of the user application

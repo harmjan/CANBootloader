@@ -34,7 +34,7 @@ typedef struct {
 } DataBlock;
 
 void initFlash( void );
-void deInitFlash( void );
+void deinitFlash( void );
 flashStatus flashNode( DataBlock *block );
 void getSectorDetails(uint8_t sector, uint32_t *address);
 static uint8_t getPhysicalSectorNumber(uint8_t virtualSector);

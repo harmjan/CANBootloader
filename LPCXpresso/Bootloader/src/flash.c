@@ -26,7 +26,7 @@ void initFlash( void ) {
 /**
  * Deinitialize the flash memory
  */
-void deInitFlash( void ) {
+void deinitFlash( void ) {
 
 }
 
