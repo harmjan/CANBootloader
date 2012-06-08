@@ -110,7 +110,7 @@ uint8_t i2cSend( uint8_t device, uint16_t address, uint8_t byte ) {
  * @param[in] address The address to receive from in the device.
  * @return            The byte of data in the device at the given address.
  */
-uint8_t receiveI2C( uint8_t device, uint16_t address ) {
+uint8_t i2cReceive( uint8_t device, uint16_t address ) {
 
 	I2CMasterBuffer[0] = device;					/* Address of slave device */
 	I2CMasterBuffer[1] = ( address >> 8 ) & 0xff;   /* MSB of address of eeprom */
