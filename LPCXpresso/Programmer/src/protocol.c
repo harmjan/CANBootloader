@@ -69,8 +69,8 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 
 	// TODO Check that all nodes confirmed their CRC and not just the number of nodes
 	// TODO Retry upto 3 times if CRC has failed
-	// Give all the nodes 500 milliseconds to respond
-	timerSet( 20 );
+	// Give all the nodes 1 second to respond
+	timerSet( 1000 );
 	uint8_t correct = 0;
 	while( !timerPassed() ) {
 		// Check if we have received a message, and
@@ -81,7 +81,6 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 				msg.id       == 0x107 &&
 				msg.data[4]  == 0x3 ) {
 			++correct;
-			timerSet( 20 );
 		}
 	}
 
@@ -122,9 +121,9 @@ void protocolDiscover( nodelist *list ) {
 	msg.length = 0;
 	canSend( &msg );
 
-	// Wait 20 milliseconds after every node that responds for nodes
-	// to register
-	timerSet( 20 );
+	// Wait 1 second to give every node the
+	// change to register at the programmer
+	timerSet( 200 );
 	while( !timerPassed() ) {
 		if( canReceive( &msg ) == MESSAGE_RECEIVED && msg.id == 0x102 ) {
 			// Get the ID of the node that is registering
@@ -140,9 +139,6 @@ void protocolDiscover( nodelist *list ) {
 			// Detect an overflow
 			if( list->numNodes >= 512 )
 				while(1);
-
-			// Reset the timer
-			timerSet( 20 );
 		}
 	}
 }
