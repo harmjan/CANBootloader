@@ -28,8 +28,8 @@ void initEeprom( void ) {
 /**
  * Deinitialize the EEPROM peripheral.
  */
-void deInitEeprom( void ) {
-	deInitI2C();
+void deinitEeprom( void ) {
+	deinitI2C();
 }
 
 /**
@@ -37,9 +37,13 @@ void deInitEeprom( void ) {
  * @param[in] address The address for the EEPROM to save the data to.
  * @param[in] byte    The data to save.
  */
-void saveByte( uint16_t address, uint8_t byte ) {
+void eepromSaveByte( uint16_t address, uint8_t byte ) {
 
-	int8_t temp = sendI2C( MC24LC64_SLAVE_ADDR, address, byte );
+	int8_t temp = i2cSend( MC24LC64_SLAVE_ADDR, address, byte );
+
+	/**
+	 * TODO: error handling
+	 */
 
 }
 
@@ -48,8 +52,8 @@ void saveByte( uint16_t address, uint8_t byte ) {
  * @param[in] address Address of the byte in the EEPROM.
  * @return            The byte in the EEPROM at the location of the given address.
  */
-uint8_t getByte( uint16_t address ) {
+uint8_t eepromGetByte( uint16_t address ) {
 
-	return receiveI2C( MC24LC64_SLAVE_ADDR, address );
+	return i2cReceive( MC24LC64_SLAVE_ADDR, address );
 
 }
