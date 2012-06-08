@@ -26,6 +26,13 @@ void initEeprom( void ) {
 }
 
 /**
+ * Deinitialize the EEPROM peripheral.
+ */
+void deInitEeprom( void ) {
+	deInitI2C();
+}
+
+/**
  * Saves the byte of data at location 'address' in EEPROM.
  * @param[in] address The address for the EEPROM to save the data to.
  * @param[in] byte    The data to save.

@@ -25,15 +25,19 @@
  */
 nodelist list;
 
+extern uint8_t _binary_userapplication_bin_start;
+extern uint8_t _binary_userapplication_bin_end;
+extern uint8_t _binary_userapplication_bin_size;
+
 int main( void ) {
 	SystemCoreClockUpdate();
 
 	initProtocol();
 
 	protocolDiscover( &list );
-
-	protocolProgram( &list );
-
+	protocolProgram( &list,
+			&_binary_userapplication_bin_start,
+			&_binary_userapplication_bin_end );
 	protocolReset();
 
 	while(1);

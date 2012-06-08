@@ -20,13 +20,11 @@
 #include "crc.h"
 #include "timer.h"
 
-/**
- * The temporary message object
- */
-CanMessage msg;
+/** The temporary message object */
+static CanMessage msg;
 
-// TODO Remove theBlock
-DataBlock theBlock;
+/** The temporary block object */
+static DataBlock block;
 
 /**
  * Write 4kB of data to the nodes.
@@ -71,8 +69,8 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 
 	// TODO Check that all nodes confirmed their CRC and not just the number of nodes
 	// TODO Retry upto 3 times if CRC has failed
-	// Give all the nodes 500 milliseconds to respond
-	timerSet( 20 );
+	// Give all the nodes 1 second to respond
+	timerSet( 1000 );
 	uint8_t correct = 0;
 	while( !timerPassed() ) {
 		// Check if we have received a message, and
@@ -83,7 +81,6 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 				msg.id       == 0x107 &&
 				msg.data[4]  == 0x3 ) {
 			++correct;
-			timerSet( 20 );
 		}
 	}
 
@@ -124,16 +121,16 @@ void protocolDiscover( nodelist *list ) {
 	msg.length = 0;
 	canSend( &msg );
 
-	// Wait 20 milliseconds after every node that responds for nodes
-	// to register
-	timerSet( 20 );
+	// Wait 1 second to give every node the
+	// change to register at the programmer
+	timerSet( 200 );
 	while( !timerPassed() ) {
 		if( canReceive( &msg ) == MESSAGE_RECEIVED && msg.id == 0x102 ) {
 			// Get the ID of the node that is registering
-			uint32_t id = (msg.data[3]<<24) |
-			              (msg.data[2]<<16) |
-			              (msg.data[1]<<8 ) |
-			              (msg.data[0]<<0 );
+			uint32_t id = (msg.data[0]<<24) |
+			              (msg.data[1]<<16) |
+			              (msg.data[2]<<8 ) |
+			              (msg.data[3]<<0 );
 
 			// And save the ID
 			list->ids[list->numNodes] = id;
@@ -142,9 +139,6 @@ void protocolDiscover( nodelist *list ) {
 			// Detect an overflow
 			if( list->numNodes >= 512 )
 				while(1);
-
-			// Reset the timer
-			timerSet( 20 );
 		}
 	}
 }
@@ -153,8 +147,10 @@ void protocolDiscover( nodelist *list ) {
  * Program the nodes in the network.
  *
  * @param[in] list The list of nodes to program.
+ * @param[in] start The start of the program to be flashed
+ * @param[in] end The end of the program to be flashed
  */
-void protocolProgram( nodelist *list ) {
+void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end ) {
 	// Programming 0 nodes is really fast!
 	if( list->numNodes == 0 )
 		return;
@@ -176,16 +172,23 @@ void protocolProgram( nodelist *list ) {
 	}
 
 	// Make a datablock for sector 15 filled with 0xAA
-	{
+	uint8_t *index = start;
+	while( index < end ){
+		block.sector = (index-start) / 4096;
+
 		uint16_t i;
 		for( i=0; i<4096; i++ ) {
-			theBlock.data[i] = 0xAA;
+			if( index < end ) {
+				block.data[i] = *index;
+				index++;
+			} else {
+				block.data[i] = 0x00;
+			}
 		}
-	}
-	theBlock.sector = 15;
 
-	// Write a dataBlock to the selected nodes
-	writeBlock( list, &theBlock );
+		// Write a dataBlock to the selected nodes
+		writeBlock( list, &block );
+	}
 }
 
 /**

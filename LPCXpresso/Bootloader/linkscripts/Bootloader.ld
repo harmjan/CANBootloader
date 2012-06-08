@@ -21,6 +21,9 @@ SECTIONS
 		FILL(0xff)
 		KEEP(*(.isr_vector))
 		
+		. = 0x0000A000;
+		KEEP(*(.canbootloader*))
+		
 		/* Global Section Table */
 		. = ALIGN(4) ;
 		__section_table_start = .;
@@ -41,8 +44,7 @@ SECTIONS
 		__section_table_end = . ;
 		/* End of Global Section Table */
 		
-
-		*(.after_vectors*)
+		*(.after_vectors*)		
 		
 		*(.text*)
 		*(.rodata .rodata.*)

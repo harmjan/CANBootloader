@@ -29,17 +29,17 @@ static uint8_t selected = 0;
 /** The message object used as temporary object */
 static CanMessage msg;
 
+/** The serial to use in the CAN protocol of this device */
+static uint8_t serial[4];
+
 /**
- * Set a random ID of 4 bytes in a uint8_t array.
+ * Set the serial of 4 bytes in a uint8_t array.
  *
  * The random ID is generated from the unique device ID
  * set by NXP during production.
- * @param array The array in which to send
+ * @param array The array in which to set the random ID.
  */
-static void setRandomID( uint8_t *array ) {
-	uint8_t serial[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-	getDeviceSerial( &serial[0] );
-
+static void setSerial( uint8_t *array ) {
 	uint8_t i;
 	for( i=0; i<4; i++ ) {
 		array[i] = serial[i]; // TODO Confirm randomness of these 4 bytes
@@ -47,15 +47,14 @@ static void setRandomID( uint8_t *array ) {
 }
 
 /**
- * Send an error to the programmer that the flashing or the CRC
- * of a block of data went wrong.
+ * Send to the programmer the result of the CRC and the flashing of a block of data.
  * @param crcSuccess 0 if the CRC was wrong and 1 of the CRC was correct.
  * @param flashSuccess 0 if there was a problem while flashing the node and 1 if it went correctly.
  */
-static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
+static void sendDataResult( uint8_t crcSuccess, uint8_t flashSuccess ) {
 	msg.id      = 0x107;
 	msg.length  = 5;
-	setRandomID( msg.data );
+	setSerial( msg.data );
 
 	msg.data[4] = (crcSuccess<<0) |  // CRC correct
 				  (flashSuccess<<1); // Flash correct
@@ -69,10 +68,24 @@ static void sendDataError( uint8_t crcSuccess, uint8_t flashSuccess ) {
  * @param[out] *blockIn The block to load the data in when receiving
  */
 void initProtocol( DataBlock *blockIn ) {
+	// Initialize the needed peripherals
 	initCan();
 	initCRC();
 
+	// Save the block pointer to communicate
+	// received data back to main
 	block  = blockIn;
+
+	// Initialize the serial with 4 bytes of
+	// the device serial
+	uint8_t tmpSerial[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+	getDeviceSerial( tmpSerial );
+	{
+		uint8_t i;
+		for( i=0; i<4; i++ ) {
+			serial[i] = tmpSerial[i];
+		}
+	}
 }
 
 /**
@@ -90,14 +103,22 @@ ProtocolState check( void ) {
 	case 0x101: // Register at the programmer
 		msg.id      = 0x102;
 		msg.length  = 4;
-		setRandomID( msg.data );
+		setSerial( msg.data );
 
 		canSend( &msg );
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x103: // Select this node for programming
-		// TODO Fix CAN ID clash
-		selected = 1;
+		// Check if this node is selected for programming
+		if( !selected ) {
+			selected = 1;
+			uint8_t i;
+			for( i=0; i<4; ++i ) {
+				if( msg.data[i] != serial[i] )
+					selected = 0;
+			}
+		}
+
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x104: // Address of data to come
@@ -133,7 +154,7 @@ ProtocolState check( void ) {
 
 		// Check if we have received enough messages
 		if( index != &(block->data[4096]) ) {
-			sendDataError(0,0);
+			sendDataResult(0,0);
 			return NO_ACTION;
 		}
 
@@ -146,7 +167,7 @@ ProtocolState check( void ) {
 			msg.data[3] == ( (crc&(0xFF<<0 ))>>0  ) ) {
 			return DATA_READY;
 		} else {
-			sendDataError(0,0);
+			sendDataResult(0,0);
 			return NO_ACTION;
 		}
 
@@ -165,13 +186,13 @@ ProtocolState check( void ) {
 void dataStatus( flashStatus state ) {
 	switch( state ) {
 	case FLASH_SUCCESS:
-		sendDataError(1,1);
+		sendDataResult(1,1);
 		break;
 
 	case COMPARE_FAILURE: // TODO More bits to give the programmer a better error.
 	case BOOTLOADER_SECTOR:
 	case INVALID_POINTER:
-		sendDataError(1,0);
+		sendDataResult(1,0);
 		break;
 	}
 }
