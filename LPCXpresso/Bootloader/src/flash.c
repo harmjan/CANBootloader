@@ -16,6 +16,9 @@
 #include "flash.h"
 #include "iap.h"
 
+static uint8_t getPhysicalSectorNumber(uint8_t virtualSector);
+static uint8_t getPhysicalSectorOffset(uint8_t virtualSector);
+
 /**
  * Initialize the flash memory
  */
