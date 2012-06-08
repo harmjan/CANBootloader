@@ -29,7 +29,7 @@ void initStorage( void ) {
  * Deinitialize the storage unit.
  */
 void deinitStorage( void ) {
-	deInitEeprom();
+	deinitEeprom();
 }
 
 /**
