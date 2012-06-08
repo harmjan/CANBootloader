@@ -71,9 +71,5 @@ void initI2C( uint32_t deviceAddress );
 void deInitI2C( void );
 uint8_t sendI2C( uint8_t device, uint16_t address, uint8_t byte );
 uint8_t receiveI2C( uint8_t device, uint16_t address );
-static uint8_t I2CEngine( uint8_t RdWr );
-static uint8_t pollI2C( void );
-static uint8_t startI2C( void );
-static void stopI2C( void );
 
 #endif

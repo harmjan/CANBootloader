@@ -42,11 +42,11 @@ void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 	uint8_t i, y;
 
 	for ( i = 0; i < 4; i++ ) {
-		saveByte( MC24LC64_DATA_ADDR + i, (startpointer >> ( 24 - (8*i) ) ) & 0xff );
+		saveByte( MC24LC64_DATA_ADDR + i, (startpointer >> ( 8*i ) ) & 0xff );
 	}
 
-	for ( y = 4; y < 8; y++ ) {
-		saveByte( MC24LC64_DATA_ADDR + y, (stackpointer >> ( 56 - (8*y) ) ) & 0xff );
+	for ( y = 0; y < 4; y++ ) {
+		saveByte( MC24LC64_DATA_ADDR + y + 4, (stackpointer >> ( 8*y ) ) & 0xff );
 	}
 
 }
@@ -61,7 +61,7 @@ uint32_t getStartPointerStorage( void ) {
 	uint8_t i;
 
 	for ( i = 0; i < 4; i++ ) {
-		startPointer += ( getByte( MC24LC64_DATA_ADDR + i ) & 0xffff ) << ( 24 - (8*i) );
+		startPointer += ( getByte( MC24LC64_DATA_ADDR + i ) & 0xffff ) << ( 8*i );
 	}
 
 	return startPointer;
@@ -76,8 +76,8 @@ uint32_t getStackPointerStorage( void ) {
 	uint32_t stackPointer = 0;
 	uint8_t i;
 
-	for ( i = 4; i < 8; i++ ) {
-		stackPointer += ( getByte( MC24LC64_DATA_ADDR + i ) & 0xffff) << (32 + ( 24 - (8*i) ));
+	for ( i = 0; i < 4; i++ ) {
+		stackPointer += ( getByte( MC24LC64_DATA_ADDR + i + 4 ) & 0xffff) << ( 8*i );
 	}
 
 	return stackPointer;

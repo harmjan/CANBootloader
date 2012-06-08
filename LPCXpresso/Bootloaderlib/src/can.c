@@ -60,6 +60,18 @@ void initCan( void ) {
 }
 
 /**
+ * Deinitialize the CAN peripheral.
+ */
+void deinitCan( void ) {
+	// Disable power to the CAN block
+	LPC_SC->PCONP &= ~(1<<14);
+
+	// Reset the pins
+	LPC_PINCON->PINSEL0 &= ~(0x2<<8);  // Reset the function of Pin 0.4
+	LPC_PINCON->PINSEL0 &= ~(0x2<<10); // Reset the function of Pin 0.5
+}
+
+/**
  * Receive a message over the CAN peripheral.
  *
  * @param[out] msg The message object to load the
