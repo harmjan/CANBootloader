@@ -120,7 +120,7 @@ int main(void) {
 	deinitTimer();
 	deinitStorage();
 	deinitFlash();
-	deinitCan();
+	deinitProtocol();
 
 	// Set stack pointer to the start of the user application
 	__set_MSP( stackPtrUA );

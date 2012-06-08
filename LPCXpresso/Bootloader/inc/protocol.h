@@ -31,6 +31,7 @@ typedef enum {
 } ProtocolState;
 
 void initProtocol( DataBlock *block );
+void deinitProtocol( void );
 ProtocolState check( void );
 void dataStatus( flashStatus state );
 
