@@ -84,18 +84,18 @@ CanReceiveStatus canReceive( CanMessage *msg ) {
 		return NO_MESSAGE_RECEIVED;
 
 	// Copy the message out of the register to the *msg object
-	msg->length  = (LPC_CAN2->RFS & (15<<16))>>16; // Get the length of the message
-	msg->id      = LPC_CAN2->RID & 4095;           // Get the ID of the message
+	msg->length  = (LPC_CAN2->RFS>>16) & 0xF; // Get the length of the message
+	msg->id      = LPC_CAN2->RID & 4095;     // Get the ID of the message
 	uint32_t tmp = LPC_CAN2->RDA;
-	msg->data[0] = ( (tmp&(0xFF<<0 ))>>0 );       // Get the data sent in the message
-	msg->data[1] = ( (tmp&(0xFF<<8 ))>>8 );
-	msg->data[2] = ( (tmp&(0xFF<<16))>>16);
-	msg->data[3] = ( (tmp&(0xFF<<24))>>24);
+	msg->data[0] = (tmp>>0 ) & 0xFF;         // Get the data sent in the message
+	msg->data[1] = (tmp>>8 ) & 0xFF;
+	msg->data[2] = (tmp>>16) & 0xFF;
+	msg->data[3] = (tmp>>24) & 0xFF;
 	tmp = LPC_CAN2->RDB;
-	msg->data[4] = ( (tmp&(0xFF<<0 ))>>0 );
-	msg->data[5] = ( (tmp&(0xFF<<8 ))>>8 );
-	msg->data[6] = ( (tmp&(0xFF<<16))>>16);
-	msg->data[7] = ( (tmp&(0xFF<<24))>>24);
+	msg->data[4] = (tmp>>0 ) & 0xFF;
+	msg->data[5] = (tmp>>8 ) & 0xFF;
+	msg->data[6] = (tmp>>16) & 0xFF;
+	msg->data[7] = (tmp>>24) & 0xFF;
 
 	LPC_CAN2->CMR = (1<<2); // Release the receive buffer
 
