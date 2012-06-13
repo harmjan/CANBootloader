@@ -75,7 +75,7 @@ void hashCombine( void ) {
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
-		hash[i] ^= hash[HASH_COUNT_FINAL-i];
+		hash[i] ^= hash[HASH_COUNT-i];
 	}
 
 }
@@ -108,6 +108,7 @@ void hashCopy( uint32_t *storage ) {
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
 		*storage = hash[i];
+		++storage;
 	}
 
 }
