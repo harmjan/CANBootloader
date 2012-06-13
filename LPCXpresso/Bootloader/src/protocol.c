@@ -16,7 +16,6 @@
 #include "protocol.h"
 #include "can.h"
 #include "iap.h"
-#include "crc.h"
 
 /** The sector to program and the data we have received so far */
 static DataBlock *block;
@@ -31,6 +30,13 @@ static CanMessage msg;
 
 /** The serial to use in the CAN protocol of this device */
 static uint8_t serial[4];
+
+/** The computed hashes */
+static uint32_t hash[4];
+
+/** The iteration number of the hash computation */
+static uint16_t hashIndex;
+
 
 /**
  * Set the serial of 4 bytes in a uint8_t array.
@@ -70,7 +76,6 @@ static void sendDataResult( uint8_t crcSuccess, uint8_t flashSuccess ) {
 void initProtocol( DataBlock *blockIn ) {
 	// Initialize the needed peripherals
 	initCan();
-	initCRC();
 
 	// Save the block pointer to communicate
 	// received data back to main
@@ -131,6 +136,14 @@ ProtocolState check( void ) {
 	case 0x104: // Address of data to come
 		block->sector = msg.data[0];
 		index = (block->data);
+
+		// Initialize hashes
+		hash[0] = 0x00000000;
+		hash[1] = 0x00000000;
+		hash[2] = 0x00000000;
+		hash[3] = 0x00000000;
+		hashIndex = 0;
+
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x105: // New data
@@ -151,6 +164,11 @@ ProtocolState check( void ) {
 				*index = msg.data[i];
 				++index;
 			}
+			for( i=0; i<4; i++ ) {
+				hash[i] += (hashIndex+1) * (((msg.data[2*i+1]) << 8) | msg.data[2*i]);
+			}
+			++hashIndex;
+
 		}
 		return NO_ACTION; // The bootloader should take no further action
 
@@ -165,13 +183,16 @@ ProtocolState check( void ) {
 			return NO_ACTION;
 		}
 
-		// TODO Faster CRC algorithm
-		uint32_t crc = generateCRC( block->data, 4096 );
-		// Check if the CRC matches the CRC of the programmer
-		if( msg.data[0] == ( (crc&(0xFF<<24))>>24 ) &&
-			msg.data[1] == ( (crc&(0xFF<<16))>>16 ) &&
-			msg.data[2] == ( (crc&(0xFF<<8 ))>>8  ) &&
-			msg.data[3] == ( (crc&(0xFF<<0 ))>>0  ) ) {
+		uint32_t finHash[2] = {hash[0] ^ hash[3], hash[1] ^ hash[2]};
+		// Check if the hash matches the hash of the programmer
+		if( msg.data[0] == ( (finHash[0]&(0xFF<<24))>>24 ) &&
+			msg.data[1] == ( (finHash[0]&(0xFF<<16))>>16 ) &&
+			msg.data[2] == ( (finHash[0]&(0xFF<<8 ))>>8  ) &&
+			msg.data[3] == ( (finHash[0]&(0xFF<<0 ))>>0  ) &&
+			msg.data[4] == ( (finHash[1]&(0xFF<<24))>>24 ) &&
+			msg.data[5] == ( (finHash[1]&(0xFF<<16))>>16 ) &&
+			msg.data[6] == ( (finHash[1]&(0xFF<<8 ))>>8  ) &&
+			msg.data[7] == ( (finHash[1]&(0xFF<<0 ))>>0  )) {
 			return DATA_READY;
 		} else {
 			sendDataResult(0,0);
