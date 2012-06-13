@@ -36,6 +36,12 @@ void initHash( void ) {
 }
 
 /**
+ * Deinitializes the hash functions.
+ */
+void deinitHash( void ) {
+}
+
+/**
  * Iteratively updates the generated hashes with the newly supplied data.
  *
  * It uses an recursive arithmetic function to detect sequence errors.
@@ -65,7 +71,7 @@ void hashUpdate( uint8_t *data ) {
  * It uses the exclusive OR operator on the i and (HASH_COUNT_FINAL - i) values
  * and stores it in hash(i), to be left with half the amount of hashes.
  */
-void combineHashes( void ) {
+void hashCombine( void ) {
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {

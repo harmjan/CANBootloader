@@ -27,6 +27,7 @@
 void initHash( void );
 void deinitHash( void );
 void hashUpdate( uint8_t *data );
+void hashCombine( void );
 uint8_t hashCheck( uint32_t *receivedHash );
 
 #endif /* _hash_h */
