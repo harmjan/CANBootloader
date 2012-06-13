@@ -29,5 +29,6 @@ void deinitHash( void );
 void hashUpdate( uint8_t *data );
 void hashCombine( void );
 uint8_t hashCheck( uint32_t *receivedHash );
+void hashCopy( uint32_t *storage );
 
 #endif /* _hash_h */

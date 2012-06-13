@@ -75,7 +75,7 @@ void hashCombine( void ) {
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
-		hash[i] ^= hash[HASH_COUNT_FINAL-i];
+		hash[i] ^= hash[HASH_COUNT-i];
 	}
 
 }
@@ -96,5 +96,19 @@ uint8_t hashCheck( uint32_t *receivedHash ) {
 		++receivedHash;
 	}
 	return 0;
+
+}
+
+/**
+ * Copies the generated hashes into a specific place in memory.
+ * @param[out] storage A pointer to the generated hashes.
+ */
+void hashCopy( uint32_t *storage ) {
+
+	uint8_t i;
+	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
+		*storage = hash[i];
+		++storage;
+	}
 
 }
