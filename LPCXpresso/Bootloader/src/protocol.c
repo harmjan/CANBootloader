@@ -155,11 +155,7 @@ ProtocolState check( void ) {
 				++index;
 			}
 
-			updateHash(&msg.data[0]);
-			//for( i=0; i<4; i++ ) { TODO: remove
-			//	hash[i] += (hashIndex+1) * (((msg.data[2*i+1]) << 8) | msg.data[2*i]);
-			//}
-			//++hashIndex;
+			hashUpdate(&msg.data[0]);
 
 		}
 		return NO_ACTION; // The bootloader should take no further action
@@ -175,8 +171,8 @@ ProtocolState check( void ) {
 			return NO_ACTION;
 		}
 
-		combineHashes();
-		if ( hashCheck(&msg.data[0]) ){
+		hashCombine();
+		if ( hashCheck((uint32_t *)&msg.data[0]) ){
 			return DATA_READY;
 		}
 		else {
