@@ -18,6 +18,7 @@
 #include "protocol.h"
 #include "can.h"
 #include "timer.h"
+#include "hash.h"
 
 /** The temporary message object */
 static CanMessage msg;
@@ -34,11 +35,6 @@ static DataBlock block;
  */
 static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 
-	// Hash variables, 4 hashes are iteratively generated for every 2 bytes of the message.
-	// Finally, the 4 hashes are xored.
-	uint32_t hash[4] = {0x00000000, 0x00000000,
-						0x00000000, 0x00000000};
-
 	// Send the sector where the following 4kB of data
 	// should be put
 	msg.id      = 0x104;
@@ -50,6 +46,7 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 	uint8_t *index = block->data;
 	msg.id         = 0x105;
 	msg.length     = 8;
+	initHash();
 	{
 		uint16_t i;
 		for( i=0; i<512; i++ ) {
@@ -58,25 +55,16 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 				msg.data[j] = *(index);
 				++index;
 			}
-			for( j=0; j<4; j++ ) {
-				hash[j] += (i+1) * ((msg.data[2*j+1] << 8) | msg.data[2*j]);
-			}
 			canSend( &msg );
+			hashUpdate(msg.data);
 		}
 	}
 
 	// Send the hash of the data
-	uint32_t finHash[2] = {hash[0] ^ hash[3], hash[1] ^ hash[2]};
+	hashCombine();
 	msg.id      = 0x106;
 	msg.length  = 8;
-	msg.data[0] = ( (finHash[0]&(0xFF<<24))>>24 );
-	msg.data[1] = ( (finHash[0]&(0xFF<<16))>>16 );
-	msg.data[2] = ( (finHash[0]&(0xFF<<8 ))>>8  );
-	msg.data[3] = ( (finHash[0]&(0xFF<<0 ))>>0  );
-	msg.data[4] = ( (finHash[1]&(0xFF<<24))>>24 );
-	msg.data[5] = ( (finHash[1]&(0xFF<<16))>>16 );
-	msg.data[6] = ( (finHash[1]&(0xFF<<8 ))>>8  );
-	msg.data[7] = ( (finHash[1]&(0xFF<<0 ))>>0  );
+	hashCopy( (uint32_t *)msg.data );
 	canSend( &msg );
 
 	// TODO Check that all nodes confirmed their CRC and not just the number of nodes
@@ -104,7 +92,6 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
  */
 void initProtocol( void ) {
 	initCan();
-	initCRC();
 	initTimer();
 }
 
