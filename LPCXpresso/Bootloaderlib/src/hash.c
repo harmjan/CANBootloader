@@ -91,11 +91,11 @@ uint8_t hashCheck( uint32_t *receivedHash ) {
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
 		if ( *receivedHash != hash[i] ) {
-			return 1;
+			return 0;
 		}
 		++receivedHash;
 	}
-	return 0;
+	return 1;
 
 }
 
