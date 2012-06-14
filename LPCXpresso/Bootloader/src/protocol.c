@@ -171,7 +171,6 @@ ProtocolState check( void ) {
 			return NO_ACTION;
 		}
 
-		hashCombine();
 		if ( hashCheck((uint32_t *)&msg.data[0]) ){
 			return DATA_READY;
 		}
