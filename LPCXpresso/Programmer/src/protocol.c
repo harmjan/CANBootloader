@@ -61,7 +61,6 @@ static uint8_t writeBlock( nodelist *list, DataBlock *block ) {
 	}
 
 	// Send the hash of the data
-	hashCombine();
 	msg.id      = 0x106;
 	msg.length  = 8;
 	hashCopy( (uint32_t *)msg.data );
