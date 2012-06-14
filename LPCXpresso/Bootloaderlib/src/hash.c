@@ -16,6 +16,8 @@
 
 #include "hash.h"
 
+static void hashCombine( void );
+
 /** The iteratively generated hashes */
 static uint32_t hash[HASH_COUNT];
 
@@ -71,7 +73,7 @@ void hashUpdate( uint8_t *data ) {
  * It uses the exclusive OR operator on the i and (HASH_COUNT_FINAL - i) values
  * and stores it in hash(i), to be left with half the amount of hashes.
  */
-void hashCombine( void ) {
+static void hashCombine( void ) {
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
@@ -87,6 +89,8 @@ void hashCombine( void ) {
  * @return                 The result of the check: 0 if success, 1 if the hashes don't correspond.
  */
 uint8_t hashCheck( uint32_t *receivedHash ) {
+
+	hashCombine();
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
