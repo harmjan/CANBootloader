@@ -84,7 +84,7 @@ static void hashCombine( void ) {
 
 /**
  * Checks a given hash value with the generated hash and returns the result.
- *
+ * Note that it automatically calls the hashCombine function.
  * @param[in] receivedHash A pointer to the received hash.
  * @return                 The result of the check: 0 if success, 1 if the hashes don't correspond.
  */
@@ -105,9 +105,12 @@ uint8_t hashCheck( uint32_t *receivedHash ) {
 
 /**
  * Copies the generated hashes into a specific place in memory.
+ * Note that it automatically calls the hashCombine function.
  * @param[out] storage A pointer to the generated hashes.
  */
 void hashCopy( uint32_t *storage ) {
+
+	hashCombine();
 
 	uint8_t i;
 	for ( i=0; i<HASH_COUNT_FINAL; i++ ) {
