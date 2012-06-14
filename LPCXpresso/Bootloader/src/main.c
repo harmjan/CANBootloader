@@ -109,6 +109,9 @@ int main(void) {
 			break;
 
 		case NO_ACTION:
+			if ( (getStackPointerStorage() && getStartPointerStorage()) == 0 ) {
+				bootloaderMode = 1;
+			}
 			break;
 
 		}
