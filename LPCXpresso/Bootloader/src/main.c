@@ -67,7 +67,7 @@ int main(void) {
 				// Save user application's ResetISR pointer and stack pointer.
 				uint32_t startPtrUA = ( block.data[7] << 24 ) | ( block.data[6] << 16 ) | ( block.data[5] << 8 ) | ( block.data[4] );
 				uint32_t stackPtrUA = ( block.data[3] << 24 ) | ( block.data[2] << 16 ) | ( block.data[1] << 8 ) | ( block.data[0] );
-				savePointersStorage( (uint32_t *)&(block.data[32]), startPtrUA, stackPtrUA );
+				savePointersStorage( startPtrUA, stackPtrUA );
 
 				// Flash first sector with bootloader's ResetISR pointer and stack pointer,
 				// so bootloader is always called first.

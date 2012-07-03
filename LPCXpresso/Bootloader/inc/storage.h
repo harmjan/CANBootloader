@@ -20,7 +20,7 @@
 
 void initStorage( void );
 void deinitStorage( void );
-void savePointersStorage( uint32_t *dest, uint32_t startpointer, uint32_t stackpointer );
+void savePointersStorage( uint32_t startpointer, uint32_t stackpointer );
 uint32_t getStartPointerStorage( void );
 uint32_t getStackPointerStorage( void );
 

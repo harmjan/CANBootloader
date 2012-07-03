@@ -32,11 +32,10 @@ void deinitStorage( void ) {
  * @param[in] startpointer The value of the startpointer.
  * @param[in] stackpointer The value of the stackpointer.
  */
-void savePointersStorage( uint32_t *dest, uint32_t startpointer, uint32_t stackpointer ) {
+void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
-	*dest = stackpointer;
-	++dest;
-	*dest = startpointer;
+	*((uint32_t *)0x20) = stackpointer;
+	*((uint32_t *)0x24) = startpointer;
 
 }
 
