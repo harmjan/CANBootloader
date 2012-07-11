@@ -16,9 +16,9 @@
  */
 
 #include "LPC17xx.h"
-
 #include "protocol.h"
 #include "timer.h"
+#include "host.h"
 
 /**
  * The list of nodes
@@ -30,7 +30,29 @@ extern uint8_t _binary_userapplication_bin_end;
 extern uint8_t _binary_userapplication_bin_size;
 
 int main( void ) {
+
+	initHost();
+	initProtocol();
 	SystemCoreClockUpdate();
+
+	for( ;; ) {
+		uint8_t command = hostListen();
+		switch ( command ) {
+		case 0x01: // Scan network
+			hostSendResponse( command ); // Send response back to host
+			protocolDiscover( &list );   // Scan network
+			hostSendData( (uint8_t *)(&(list.numNodes)), sizeof(list.numNodes) ); // Send number of responding nodes
+			hostSendData( (uint8_t *)(&(list.ids)), sizeof(list.ids[0]) * list.numNodes ); // Send IDs of all responding nodes
+			hostSendResponse( command ); // Send response back to host to mark end of data
+			if ( hostListen() != command ) { // Host returns response to confirm success on data transaction
+				// Go to error state
+				// TODO ^
+			}
+			break;
+		}
+	}
+
+	/*SystemCoreClockUpdate();
 
 	initProtocol();
 
@@ -39,7 +61,7 @@ int main( void ) {
 			&_binary_userapplication_bin_start,
 			&_binary_userapplication_bin_end );
 	protocolReset();
-
+*/
 	while(1);
 	return 0;
 }
