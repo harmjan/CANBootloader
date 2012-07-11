@@ -81,6 +81,8 @@ void UART0_IRQHandler(void) {
 
 void initUART( void ) {
 
+		SystemInit();
+
 		uint8_t  clk_div, clk_div_frac;
 		uint32_t clk;
 
