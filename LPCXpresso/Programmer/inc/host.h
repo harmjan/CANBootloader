@@ -21,7 +21,8 @@
 void initHost();
 void deinitHost();
 uint8_t* hostReceiveData( uint32_t length );
-uint8_t  hostReceiveCommand();
-void hostSend( uint8_t *data, uint32_t length );
+uint8_t hostListen();
+void hostSendData( uint8_t *data, uint32_t length );
+void hostSendResponse( uint8_t response );
 
 #endif

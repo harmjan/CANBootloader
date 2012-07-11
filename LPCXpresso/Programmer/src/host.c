@@ -17,7 +17,15 @@
 #include "host.h"
 #include "uart.h"
 
-void hostSend( uint8_t *data, uint32_t length ) {
+uint8_t hostListen() {
+	return *(hostReceiveData( 1 ));
+}
+
+void hostSendResponse( uint8_t response ) {
+	hostSendData( &response, 1 );
+}
+
+void hostSendData( uint8_t *data, uint32_t length ) {
 
 	uartSend( data, length );
 
@@ -27,10 +35,6 @@ uint8_t* hostReceiveData( uint32_t length ) {
 
 	return uartReceive( length );
 
-}
-
-uint8_t hostReceiveCommand( void ) {
-	return *(uartReceive( 1 ));
 }
 
 void initHost() {
