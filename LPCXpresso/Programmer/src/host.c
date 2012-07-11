@@ -21,20 +21,28 @@ uint8_t hostListen() {
 	return *(hostReceiveData( 1 ));
 }
 
+uint16_t hostListen16() {
+	uint8_t num1 = hostListen();
+	uint8_t num2 = hostListen();
+	return num1 ^ (num2 << 8);
+}
+
+uint32_t hostListen32() {
+	uint16_t num1 = hostListen16();
+	uint16_t num2 = hostListen16();
+	return num1 ^ (num2 << 16);
+}
+
 void hostSendResponse( uint8_t response ) {
 	hostSendData( &response, 1 );
 }
 
 void hostSendData( uint8_t *data, uint32_t length ) {
-
 	uartSend( data, length );
-
 }
 
 uint8_t* hostReceiveData( uint32_t length ) {
-
 	return uartReceive( length );
-
 }
 
 void initHost() {
