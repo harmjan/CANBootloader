@@ -18,6 +18,43 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <string.h>
+
+static FILE *uart;
+static FILE *application;
+static uint8_t verbose = 0;
+static uint8_t scan = 0;
+static uint8_t program = 0;
+
+void scanNetwork(){
+	
+	printf("Scanning network...\n");
+
+	uint8_t command = 0x01;
+	if (verbose) printf("Send request to programmer.\n");
+	fwrite( &command, sizeof(uint8_t), 1, uart );
+
+	uint8_t data;
+	fread( &data , sizeof(uint8_t), 1, uart);
+	if (verbose) printf("Programmer succesfully received request.\n");
+
+	uint16_t numNodes;
+	if (verbose) printf("Querying programmer for amount of responding nodes.\n");
+	fread( &numNodes, sizeof(uint16_t), 1, uart);
+	printf( "Found %d nodes active.\n", numNodes );
+
+	uint32_t nodeList[numNodes];
+	uint16_t i;
+	for( i=0; i<numNodes; i++ ){
+		fread( nodeList+i, sizeof(uint32_t), 1, uart );
+		printf( "#%d: 0x%08x\n", i, nodeList[i] );
+	}
+
+	if (verbose) printf("Send success message to the programmer.\n");
+	fwrite( &command, sizeof(uint8_t), 1, uart );
+
+	return;
+}
 
 int main( int argc, char **argv ) {
 
@@ -25,17 +62,30 @@ int main( int argc, char **argv ) {
 	// binary
 	// --scan
 	// list of nodes to flash [Y/N]
-
-	int c;
-
-	while ( (c = getopt( argc, argv, "p:d:s::" ) != -1 ) ) {
+	int opt;
+	while (( opt = getopt(argc, argv, "sv")) > 0)  
+	switch (opt) {
+	case '?': puts("Bad argument"); break;
+	case 's': 
+		scan=1;
+		break;
+	case 'v': 
+		verbose=1;
+		break;
+        default: break;
+	}
+	if ( scan ) {
+		uart = fopen( "/dev/ttyUSB0", "a+b" );
+		scanNetwork();
+		fclose( uart );
+	}
+	else if( program ) {
 
 	}
+	else {
+		printf("Bad input. Nothing to do.\n");
+	}
 
-	//FILE *uart = fopen( "/dev/ttyUSB0", "a+" );
-	//fprintf(uart, "Testing...");
-	
-	
 	return 0;
 }
 
