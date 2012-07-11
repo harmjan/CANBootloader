@@ -20,6 +20,10 @@
 #include <stdint.h>
 #include <string.h>
 
+uint32_t getFileSize(FILE *file);
+void scanNetwork();
+void programNodes();
+
 static FILE *uart;
 static FILE *application;
 static uint8_t verbose = 0;
@@ -89,4 +93,9 @@ int main( int argc, char **argv ) {
 	return 0;
 }
 
-
+uint32_t getFileSize(FILE *file) {
+	fseek( file, 0L, SEEK_END);
+	uint32_t size = ftell( application );
+	fseek( file, 0L, SEEK_SET);
+	return size;
+}
