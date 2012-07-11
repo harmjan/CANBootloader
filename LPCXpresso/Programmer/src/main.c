@@ -20,6 +20,8 @@
 #include "timer.h"
 #include "host.h"
 
+static void error( uint8_t errorCode );
+
 /**
  * The list of nodes
  */
@@ -45,9 +47,36 @@ int main( void ) {
 			hostSendData( (uint8_t *)(&(list.ids)), sizeof(list.ids[0]) * list.numNodes ); // Send IDs of all responding nodes
 			hostSendResponse( command ); // Send response back to host to mark end of data
 			if ( hostListen() != command ) { // Host returns response to confirm success on data transaction
-				// Go to error state
-				// TODO ^
+				// TODO: Go to error state
+				error( command );
 			}
+			break;
+		case 0x02: // Program network
+			hostSendResponse( command ); // Send response back to host
+			uint32_t applicationSize = hostListen32();
+			uint8_t blocksNeeded = ( applicationSize / 4096 ) + 1;
+			uint8_t block[4096];
+
+			int i;
+			for ( i=0; i<blocksNeeded; i++ ) {
+				uint16_t blockSize = ( (i+1) == blocksNeeded ) ? applicationSize % 4096 : 4096;
+				*block = *hostReceiveData( blockSize ); // TODO: fixed by -1, needs research
+
+				// Program nodes through CAN
+
+				if ( hostListen() != 0x03 ) {
+					// TODO: Go to error state
+					error( 0x03 );
+					//return 1;
+				}
+				hostSendResponse( 0x03 );
+			}
+			if ( hostListen() != 0x04 ) {
+				// TODO: Go to error state
+				error( 0x04 );
+				//return 1;
+			}
+
 			break;
 		}
 	}
@@ -64,4 +93,8 @@ int main( void ) {
 */
 	while(1);
 	return 0;
+}
+
+static void error( uint8_t errorCode ) {
+	hostSendResponse( ++errorCode ); // TODO: specify specific error codes
 }
