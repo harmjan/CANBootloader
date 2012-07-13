@@ -26,6 +26,11 @@ static CanMessage msg;
 /** The temporary block object */
 static DataBlock block;
 
+/** Are the nodes to be reprogrammed already selected */
+static uint8_t selected = 0;
+
+static void selectNodes( nodelist *list );
+
 /**
  * Write 4kB of data to the nodes.
  * @param list The list of nodes that the
@@ -142,19 +147,57 @@ void protocolDiscover( nodelist *list ) {
 }
 
 /**
- * Program the nodes in the network.
+ * Programs the nodes in the network with a block.
  *
  * @param[in] list The list of nodes to program.
- * @param[in] start The start of the program to be flashed
- * @param[in] end The end of the program to be flashed
+ * @param[in] start The start of the block to be flashed
+ * @param[in] end The end of the block to be flashed
+ * @param[in] sector The sector for the block to be placed in
  */
-void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end ) {
+void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end, uint8_t sector ) {
+
 	// Programming 0 nodes is really fast!
 	if( list->numNodes == 0 )
 		return;
 
-	// Select all nodes that are going to be
-	// reprogrammed.
+	// Select nodes to be programmed if not yet selected
+	if ( !selected )
+		selectNodes( list );
+
+	// Make a datablock
+	block.sector = sector;
+
+	uint16_t i;
+	uint8_t *index = start;
+	for( i=0; i<4096; i++ ) {
+		if( index < end ) {
+			block.data[i] = *index;
+			index++;
+		} else {
+			block.data[i] = 0x00;
+		}
+	}
+
+	// Write a dataBlock to the selected nodes
+	writeBlock( list, &block );
+
+}
+
+/**
+ * Reboot the network.
+ */
+void protocolReset( void ) {
+	msg.id     = 0x108;
+	msg.length = 0;
+	canSend( &msg );
+}
+
+/**
+ * Select all nodes that are going to be reprogrammed.
+ * @param[in] list The list of nodes to program.
+ */
+static void selectNodes( nodelist *list ) {
+
 	msg.id     = 0x103;
 	msg.length = 4;
 	{
@@ -168,32 +211,4 @@ void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end ) {
 			canSend( &msg );
 		}
 	}
-
-	// Make a datablock for sector 15 filled with 0xAA
-	uint8_t *index = start;
-	while( index < end ){
-		block.sector = (index-start) / 4096;
-
-		uint16_t i;
-		for( i=0; i<4096; i++ ) {
-			if( index < end ) {
-				block.data[i] = *index;
-				index++;
-			} else {
-				block.data[i] = 0x00;
-			}
-		}
-
-		// Write a dataBlock to the selected nodes
-		writeBlock( list, &block );
-	}
-}
-
-/**
- * Reboot the network.
- */
-void protocolReset( void ) {
-	msg.id     = 0x108;
-	msg.length = 0;
-	canSend( &msg );
 }

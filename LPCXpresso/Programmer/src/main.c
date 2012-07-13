@@ -65,8 +65,7 @@ int main( void ) {
 				hostReceiveData( blockReceived, blockSize );
 
 				// Program nodes through CAN
-				// protocolProgram( &list, block, block+blockSize );
-				// TODO: change protocolProgram to accept 1 block at a time
+				protocolProgram( &list, blockReceived, blockReceived+blockSize, i );
 
 				if ( hostListen() != 0x03 ) {
 					// TODO: Go to error state
