@@ -18,7 +18,9 @@
 #include "uart.h"
 
 uint8_t hostListen() {
-	return *(hostReceiveData( 1 ));
+	uint8_t destination;
+	hostReceiveData( &destination, 1 );
+	return destination;
 }
 
 uint16_t hostListen16() {
@@ -41,8 +43,8 @@ void hostSendData( uint8_t *data, uint32_t length ) {
 	uartSend( data, length );
 }
 
-uint8_t* hostReceiveData( uint32_t length ) {
-	return uartReceive( length );
+void hostReceiveData( uint8_t *destination, uint32_t length ) {
+	uartReceive( destination, length );
 }
 
 void initHost() {

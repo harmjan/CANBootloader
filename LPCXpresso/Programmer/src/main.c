@@ -55,12 +55,14 @@ int main( void ) {
 			hostSendResponse( command ); // Send response back to host
 			uint32_t applicationSize = hostListen32();
 			uint8_t blocksNeeded = ( applicationSize / 4096 ) + 1;
-			uint8_t block[4096];
+			uint8_t blockReceived[4096];
+
+			// TODO: supply list of nodes to be flashed
 
 			int i;
 			for ( i=0; i<blocksNeeded; i++ ) {
 				uint16_t blockSize = ( (i+1) == blocksNeeded ) ? applicationSize % 4096 : 4096;
-				*block = *hostReceiveData( blockSize );
+				hostReceiveData( blockReceived, blockSize );
 
 				// Program nodes through CAN
 				// protocolProgram( &list, block, block+blockSize );
