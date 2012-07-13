@@ -20,6 +20,7 @@ static uint32_t baudrate = 9600;
 volatile static uint8_t txBufferEmpty = 1;
 volatile static uint8_t rxBuffer[4096];
 volatile static uint16_t rxBufferCount = 0;
+volatile static uint8_t *destination;
 
 void uartSend( uint8_t *data, uint32_t length ) {
 
@@ -29,23 +30,14 @@ void uartSend( uint8_t *data, uint32_t length ) {
 	}
 }
 
-uint8_t* uartReceive( uint32_t length ) {
+void uartReceive( uint8_t *dest, uint32_t length ) {
 
+	destination = dest;
 	rxBufferCount = 0;
-
-	while( rxBufferCount != length ) {}
-
-	// TODO: Hmm.
-	NVIC_DisableIRQ(UART0_IRQn);
-	uint8_t data[length];
-	uint32_t i = 0;
-	while( i < length ) {
-		data[i] = rxBuffer[i];
-		++i;
-	}
 	NVIC_EnableIRQ(UART0_IRQn);
+	while( rxBufferCount != length ) {}
+	NVIC_DisableIRQ(UART0_IRQn);
 
-	return data;
 }
 
 void UART0_IRQHandler(void) {
@@ -57,7 +49,8 @@ void UART0_IRQHandler(void) {
 		txBufferEmpty = LPC_UART0->LSR >> 5; // Check if there is more data to be send
 		break;
 	case 0x02: // Receive Data Available (RDA)
-		rxBuffer[rxBufferCount] = LPC_UART0->RBR;
+		*destination = LPC_UART0->RBR;
+		++destination;
 		rxBufferCount = ( rxBufferCount++ == 4096 ) ? 0 : rxBufferCount;
 		break;
 	case 0x03: // Receive Line Status (RLS)
@@ -67,7 +60,8 @@ void UART0_IRQHandler(void) {
 			return;
 		}
 		if ( LPC_UART0->LSR & 0x01 ) { // Check for Receiver Data Ready (RDR)
-			rxBuffer[rxBufferCount] = LPC_UART0->RBR;
+			*destination = LPC_UART0->RBR;
+			++destination;
 			rxBufferCount = ( rxBufferCount++ == 4096 ) ? 0 : rxBufferCount;
 		}
 
