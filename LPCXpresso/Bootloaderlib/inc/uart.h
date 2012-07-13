@@ -21,7 +21,7 @@
 void initUART();
 void deinitUART();
 void uartSend(uint8_t *data, uint32_t length);
-uint8_t* uartReceive( uint32_t length );
+void uartReceive( uint8_t *destination, uint32_t length );
 void UART0_IRQHandler( void );
 
 #endif
