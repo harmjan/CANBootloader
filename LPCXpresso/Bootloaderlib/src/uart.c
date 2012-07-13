@@ -32,6 +32,7 @@ void uartSend( uint8_t *data, uint32_t length ) {
 uint8_t* uartReceive( uint32_t length ) {
 
 	rxBufferCount = 0;
+
 	while( rxBufferCount != length ) {}
 
 	// TODO: Hmm.
@@ -56,8 +57,8 @@ void UART0_IRQHandler(void) {
 		txBufferEmpty = LPC_UART0->LSR >> 5; // Check if there is more data to be send
 		break;
 	case 0x02: // Receive Data Available (RDA)
-		rxBuffer[rxBufferCount++] = LPC_UART0->RBR;
-		rxBufferCount = ( rxBufferCount == 4096 ) ? 0 : rxBufferCount;
+		rxBuffer[rxBufferCount] = LPC_UART0->RBR;
+		rxBufferCount = ( rxBufferCount++ == 4096 ) ? 0 : rxBufferCount;
 		break;
 	case 0x03: // Receive Line Status (RLS)
 
@@ -66,8 +67,8 @@ void UART0_IRQHandler(void) {
 			return;
 		}
 		if ( LPC_UART0->LSR & 0x01 ) { // Check for Receiver Data Ready (RDR)
-			rxBuffer[rxBufferCount++] = LPC_UART0->RBR;
-			rxBufferCount = ( rxBufferCount == 4096 ) ? 0 : rxBufferCount;
+			rxBuffer[rxBufferCount] = LPC_UART0->RBR;
+			rxBufferCount = ( rxBufferCount++ == 4096 ) ? 0 : rxBufferCount;
 		}
 
 		break;
