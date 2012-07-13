@@ -60,9 +60,11 @@ int main( void ) {
 			int i;
 			for ( i=0; i<blocksNeeded; i++ ) {
 				uint16_t blockSize = ( (i+1) == blocksNeeded ) ? applicationSize % 4096 : 4096;
-				*block = *hostReceiveData( blockSize ); // TODO: fixed by -1, needs research
+				*block = *hostReceiveData( blockSize );
 
 				// Program nodes through CAN
+				// protocolProgram( &list, block, block+blockSize );
+				// TODO: change protocolProgram to accept 1 block at a time
 
 				if ( hostListen() != 0x03 ) {
 					// TODO: Go to error state
@@ -76,6 +78,7 @@ int main( void ) {
 				error( 0x04 );
 				//return 1;
 			}
+			hostSendResponse( 0x04 );
 
 			break;
 		}
