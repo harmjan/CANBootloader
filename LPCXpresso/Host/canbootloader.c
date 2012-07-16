@@ -105,6 +105,10 @@ void programNodes() {
 		fwrite( &command, sizeof(uint8_t), 1, uart );
 
 		fread( &data, sizeof(uint8_t), 1, uart );
+		if ( !data ) error( "error in programmer while programming nodes");
+		if (verbose) printf("Programming nodes with block #%d succesfull.\n", i);
+
+		fread( &data, sizeof(uint8_t), 1, uart );
 		if ( data != command ) error( "block transmission not synchronized" );
 		if (verbose) printf("Programmer has succesfully received the block.\n");
 	}
