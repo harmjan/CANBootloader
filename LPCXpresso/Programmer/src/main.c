@@ -56,6 +56,7 @@ int main( void ) {
 			uint32_t applicationSize = hostListen32();
 			uint8_t blocksNeeded = ( applicationSize / 4096 ) + 1;
 			uint8_t blockReceived[4096];
+			uint8_t writingSuccess;
 
 			// TODO: supply list of nodes to be flashed
 
@@ -64,15 +65,16 @@ int main( void ) {
 				uint16_t blockSize = ( (i+1) == blocksNeeded ) ? applicationSize % 4096 : 4096;
 				hostReceiveData( blockReceived, blockSize );
 
-				// Program nodes through CAN
-				protocolProgram( &list, blockReceived, blockReceived+blockSize, i );
-
 				if ( hostListen() != 0x03 ) {
 					// TODO: Go to error state
 					error( 0x03 );
 					//return 1;
 				}
+
+				writingSuccess = protocolProgram( &list, blockReceived, blockReceived+blockSize, i ); // Program nodes through CAN
+				hostSendResponse( writingSuccess );  // Send result of programming of block
 				hostSendResponse( 0x03 );
+
 			}
 			if ( hostListen() != 0x04 ) {
 				// TODO: Go to error state

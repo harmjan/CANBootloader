@@ -153,8 +153,9 @@ void protocolDiscover( nodelist *list ) {
  * @param[in] start The start of the block to be flashed
  * @param[in] end The end of the block to be flashed
  * @param[in] sector The sector for the block to be placed in
+ * @return If the writing was succesfull
  */
-void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end, uint8_t sector ) {
+uint8_t protocolProgram( nodelist *list, uint8_t *start, uint8_t *end, uint8_t sector ) {
 
 	// Programming 0 nodes is really fast!
 	if( list->numNodes == 0 )
@@ -179,7 +180,7 @@ void protocolProgram( nodelist *list, uint8_t *start, uint8_t *end, uint8_t sect
 	}
 
 	// Write a dataBlock to the selected nodes
-	writeBlock( list, &block );
+	return writeBlock( list, &block );
 
 }
 
