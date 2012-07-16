@@ -154,8 +154,9 @@ int main( int argc, char **argv ) {
 		fclose( uart );
 	}
 	else if( program ) {
-		uart = fopen( "/dev/ttyUSB0", "a+b" );
-		application = fopen( userApplication, "rb" );
+		//uart = fopen( "/dev/ttyUSB0", "a+b" );
+		if ( !( uart=fopen( "/dev/ttyUSB0", "a+b" ) ) ) error( "failed to open /dev/ttyUSB0" );
+		if ( !( application=fopen( userApplication, "rb" ) ) ) error( "failed to open binary file" );
 		programNodes();
 		fclose( application );
 		fclose( uart );
