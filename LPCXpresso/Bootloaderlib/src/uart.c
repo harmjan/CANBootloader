@@ -18,7 +18,6 @@
 
 static uint32_t baudrate = 9600;
 volatile static uint8_t txBufferEmpty = 1;
-volatile static uint8_t rxBuffer[4096];
 volatile static uint16_t rxBufferCount = 0;
 volatile static uint8_t *destination;
 
