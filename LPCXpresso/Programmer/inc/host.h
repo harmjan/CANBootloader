@@ -8,19 +8,23 @@
  *
  * ===============================================================================================================
  *
- * The functions to deal with taling to the onboard eeprom chip on the LPCXpresso.
+ * The functions to communicate with the host.
  *
  * @author Chiel de Roest <M.A.deRoest@student.tudelft.nl> and Harmjan Treep <harmjan.treep@gmail.com>
  */
 
-#include "stdint.h"
+#include <stdint.h>
 
-#ifndef EEPROM_H__
-#define EEPROM_H__
+#ifndef HOST_H__
+#define HOST_H__
 
-void initEeprom( void );
-void deinitEeprom( void );
-void eepromSaveByte( uint16_t address, uint8_t byte );
-uint8_t eepromGetByte( uint16_t address );
+void initHost();
+void deinitHost();
+void hostReceiveData( uint8_t *destination, uint32_t length );
+uint8_t hostListen();
+uint16_t hostListen16();
+uint32_t hostListen32();
+void hostSendData( uint8_t *data, uint32_t length );
+void hostSendResponse( uint8_t response );
 
 #endif

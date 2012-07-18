@@ -71,7 +71,6 @@ int main(void) {
 
 				// Flash first sector with bootloader's ResetISR pointer and stack pointer,
 				// so bootloader is always called first.
-
 				uint8_t *stackptr = (uint8_t *)0x00;
 				uint8_t i;
 				int32_t checksum = 0;
@@ -79,6 +78,7 @@ int main(void) {
 					block.data[i] = *(stackptr+i);
 				}
 
+				// Compute checksum, making the user application a 'valid user application'
 				uint32_t *index = (uint32_t *)block.data;
 				for ( i = 0; i < 7; i++ ) {
 					checksum += *(index+i);
@@ -109,13 +109,16 @@ int main(void) {
 			break;
 
 		case NO_ACTION:
+			if ( (getStackPointerStorage() && getStartPointerStorage()) == 0 ) {
+				bootloaderMode = 1;
+			}
 			break;
 
 		}
 	}
 
-	uint32_t startPtrUA = getStartPointerStorage();
 	uint32_t stackPtrUA = getStackPointerStorage();
+	uint32_t startPtrUA = getStartPointerStorage();
 
 	deinitTimer();
 	deinitStorage();

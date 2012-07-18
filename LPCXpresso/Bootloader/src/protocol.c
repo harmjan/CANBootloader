@@ -16,7 +16,7 @@
 #include "protocol.h"
 #include "can.h"
 #include "iap.h"
-#include "crc.h"
+#include "hash.h"
 
 /** The sector to program and the data we have received so far */
 static DataBlock *block;
@@ -70,7 +70,6 @@ static void sendDataResult( uint8_t crcSuccess, uint8_t flashSuccess ) {
 void initProtocol( DataBlock *blockIn ) {
 	// Initialize the needed peripherals
 	initCan();
-	initCRC();
 
 	// Save the block pointer to communicate
 	// received data back to main
@@ -131,6 +130,10 @@ ProtocolState check( void ) {
 	case 0x104: // Address of data to come
 		block->sector = msg.data[0];
 		index = (block->data);
+
+		// Initialize new hashes, create new hashes for every 4kB
+		initHash();
+
 		return NO_ACTION; // The bootloader should take no further action
 
 	case 0x105: // New data
@@ -151,6 +154,9 @@ ProtocolState check( void ) {
 				*index = msg.data[i];
 				++index;
 			}
+
+			hashUpdate(&msg.data[0]);
+
 		}
 		return NO_ACTION; // The bootloader should take no further action
 
@@ -165,15 +171,10 @@ ProtocolState check( void ) {
 			return NO_ACTION;
 		}
 
-		// TODO Faster CRC algorithm
-		uint32_t crc = generateCRC( block->data, 4096 );
-		// Check if the CRC matches the CRC of the programmer
-		if( msg.data[0] == ( (crc&(0xFF<<24))>>24 ) &&
-			msg.data[1] == ( (crc&(0xFF<<16))>>16 ) &&
-			msg.data[2] == ( (crc&(0xFF<<8 ))>>8  ) &&
-			msg.data[3] == ( (crc&(0xFF<<0 ))>>0  ) ) {
+		if ( hashCheck((uint32_t *)&msg.data[0]) ){
 			return DATA_READY;
-		} else {
+		}
+		else {
 			sendDataResult(0,0);
 			return NO_ACTION;
 		}

@@ -14,22 +14,17 @@
  */
 
 #include "storage.h"
-#include "eeprom.h"
-
-#define MC24LC64_DATA_ADDR  0x0000		/* Address of start of data on the 24LC64 EEPROM */
 
 /**
  * Initialize the storage unit.
  */
 void initStorage( void ) {
-	initEeprom();
 }
 
 /**
  * Deinitialize the storage unit.
  */
 void deinitStorage( void ) {
-	deinitEeprom();
 }
 
 /**
@@ -39,15 +34,8 @@ void deinitStorage( void ) {
  */
 void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
 
-	uint8_t i, y;
-
-	for ( i = 0; i < 4; i++ ) {
-		eepromSaveByte( MC24LC64_DATA_ADDR + i, (startpointer >> ( 8*i ) ) & 0xff );
-	}
-
-	for ( y = 0; y < 4; y++ ) {
-		eepromSaveByte( MC24LC64_DATA_ADDR + y + 4, (stackpointer >> ( 8*y ) ) & 0xff );
-	}
+	*((uint32_t *)0x20) = stackpointer;
+	*((uint32_t *)0x24) = startpointer;
 
 }
 
@@ -57,14 +45,8 @@ void savePointersStorage( uint32_t startpointer, uint32_t stackpointer ) {
  */
 uint32_t getStartPointerStorage( void ) {
 
-	uint32_t startPointer = 0;
-	uint8_t i;
+	return *((uint32_t *)0x24);
 
-	for ( i = 0; i < 4; i++ ) {
-		startPointer += ( eepromGetByte( MC24LC64_DATA_ADDR + i ) & 0xffff ) << ( 8*i );
-	}
-
-	return startPointer;
 }
 
 /**
@@ -73,13 +55,6 @@ uint32_t getStartPointerStorage( void ) {
  */
 uint32_t getStackPointerStorage( void ) {
 
-	uint32_t stackPointer = 0;
-	uint8_t i;
-
-	for ( i = 0; i < 4; i++ ) {
-		stackPointer += ( eepromGetByte( MC24LC64_DATA_ADDR + i + 4 ) & 0xffff) << ( 8*i );
-	}
-
-	return stackPointer;
+	return *((uint32_t *)0x20);
 
 }

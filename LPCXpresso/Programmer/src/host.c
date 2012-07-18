@@ -8,19 +8,47 @@
  *
  * ===============================================================================================================
  *
- * The driver functions for the I2C peripheral.
+ * The functions to communicate with the host.
  *
  * @author Chiel de Roest <M.A.deRoest@student.tudelft.nl> and Harmjan Treep <harmjan.treep@gmail.com>
  */
 
-#include <stdint.h>
+#include "LPC17xx.h"
+#include "host.h"
+#include "uart.h"
 
-#ifndef I2C_H__
-#define I2C_H__
+uint8_t hostListen() {
+	uint8_t destination;
+	hostReceiveData( &destination, 1 );
+	return destination;
+}
 
-void initI2C( uint32_t deviceAddress );
-void deinitI2C( void );
-uint8_t i2cSend( uint8_t device, uint16_t address, uint8_t byte );
-uint8_t i2cReceive( uint8_t device, uint16_t address );
+uint16_t hostListen16() {
+	uint8_t num1 = hostListen();
+	uint8_t num2 = hostListen();
+	return num1 ^ (num2 << 8);
+}
 
-#endif
+uint32_t hostListen32() {
+	uint16_t num1 = hostListen16();
+	uint16_t num2 = hostListen16();
+	return num1 ^ (num2 << 16);
+}
+
+void hostSendResponse( uint8_t response ) {
+	hostSendData( &response, 1 );
+}
+
+void hostSendData( uint8_t *data, uint32_t length ) {
+	uartSend( data, length );
+}
+
+void hostReceiveData( uint8_t *destination, uint32_t length ) {
+	uartReceive( destination, length );
+}
+
+void initHost() {
+	initUART();
+}
+
+void deinitHost() {}

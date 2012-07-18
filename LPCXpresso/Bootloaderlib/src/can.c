@@ -16,6 +16,8 @@
 #include "LPC17xx.h"
 #include "can.h"
 
+static void canResetError( void );
+
 /**
  * Setup the CAN peripheral.
  *
@@ -72,6 +74,16 @@ void deinitCan( void ) {
 }
 
 /**
+ * Resets the transmit and receive error counts.
+ */
+static void canResetError( void ) {
+
+	LPC_CAN2->MOD |= 1; // Go into reset mode so error counters can be changed
+	LPC_CAN2->GSR &= 0xffff << 16; // Reset transmit and receive error counters
+	LPC_CAN2->MOD &= 0; // Change to normal mode again
+}
+
+/**
  * Receive a message over the CAN peripheral.
  *
  * @param[out] msg The message object to load the
@@ -98,6 +110,8 @@ CanReceiveStatus canReceive( CanMessage *msg ) {
 	msg->data[7] = (tmp>>24) & 0xFF;
 
 	LPC_CAN2->CMR = (1<<2); // Release the receive buffer
+
+	canResetError();
 
 	return MESSAGE_RECEIVED;
 }
@@ -130,4 +144,6 @@ void canSend( CanMessage *msg ) {
 
 	// Wait for the message to be transmitted
 	while( (LPC_CAN2->SR & (1<<2)) == 0 && (LPC_CAN2->SR & (1<<3)) == 0);
+
+	canResetError();
 }
