@@ -14,7 +14,7 @@ The entire project was build with the LPCXpresso IDE. The subprojects are:
 
 # Design
 
-The design is documente in our report available on <http://repository.tudelft.nl/view/ir/uuid%3A23211b17-11ce-4cc5-8f84-35766f7a975f/>.
+The design is documented in our report available on <http://repository.tudelft.nl/view/ir/uuid%3A23211b17-11ce-4cc5-8f84-35766f7a975f/>.
 Important points are:
  - The bootloader is located at the top of the flash so the application you are flashing onto the nodes does not need to be linked differently from the developers test setup.
  - The design is modular so you should be able to replace CAN with another bus protocol or port the application to another ARM processor without to many problems.
